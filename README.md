@@ -55,9 +55,21 @@ dotnet publish src/MyBlog.Browser/MyBlog.Browser.csproj -c Release -o published
 python -m http.server 8080 --directory published/wwwroot
 ```
 
-> 根目录下的 `publish/` 是早期版本的产物，可以直接删掉；现在统一输出到 `published/`
-> （与 `.github/workflows/deploy.yml` 保持一致）。
-> `_framework` 目录必须保持原样，且需要 `.nojekyll`，否则 GitHub Pages 会忽略它。
+> 本地用 `python -m http.server` 是开在根路径的，而线上是子路径，两边都能跑是因为
+> `<base href="/MyBlog/">` 是绝对路径：本地打开 `http://localhost:8080/MyBlog/` 即可。
+
+## 发布
+
+- 仓库：<https://github.com/BrocadeHutHost/MyBlog>
+- 线上地址：<https://brocadehuthost.github.io/MyBlog/>
+- 推送到 `main` 后由 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) 自动构建并发布，
+  需要在仓库的 **Settings → Pages → Build and deployment → Source** 里选 **GitHub Actions**。
+
+> 这是**项目页**（子路径），所以 [index.html](src/MyBlog.Browser/wwwroot/index.html) 里写了
+> `<base href="/MyBlog/" />`。仓库改名后要同步改这一行；如果哪天搬到
+> `<user>.github.io` 用户页（根路径），把这一行删掉即可。
+> `_framework` 目录必须保持原样，且需要 `.nojekyll`（工作流里会创建），否则 GitHub Pages 会忽略它。
+> 根目录下的 `publish/` 是早期版本的产物，可以直接删掉；现在统一输出到 `published/`。
 
 ## 改内容
 
