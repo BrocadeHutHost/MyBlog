@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0-browser</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <WasmEnableAot>false</WasmEnableAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Browser" />
+  </ItemGroup>
+
+  <!-- 界面与内容都靠 Avalonia 的反射绑定取属性；WASM 发布默认裁剪会把这些
+       只被绑定用到的成员裁掉（表现为页面上文字空白），所以整个 MyBlog 程序集不裁剪。 -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="MyBlog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyBlog\MyBlog.csproj" />
+  </ItemGroup>
+</Project>

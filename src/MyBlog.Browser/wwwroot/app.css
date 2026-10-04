@@ -1,0 +1,18 @@
+/* 加载占位屏样式（Avalonia 接管后会被覆盖）*/
+.avalonia-splash {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: #F4F6F9;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    pointer-events: none;
+}
+
+.avalonia-splash h2 {
+    color: #5C6772;
+    font-weight: 400;
+    font-size: 1.2rem;
+}

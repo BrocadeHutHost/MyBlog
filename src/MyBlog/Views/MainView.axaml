@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MyBlog.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1180" d:DesignHeight="900"
+             x:Class="MyBlog.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             FontFamily="Microsoft YaHei, PingFang SC, Segoe UI, system-ui, sans-serif">
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <!-- 外壳：顶栏（并列栏目）+ 左侧目录 + 右侧内容 -->
+    <Grid RowDefinitions="Auto,*" Background="{StaticResource PageBgBrush}">
+
+        <!-- ===== 顶部导航栏：5 个并列栏目 ===== -->
+        <Border Grid.Row="0"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderSoftBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid MaxWidth="1180" Margin="24,0" Height="56" ColumnDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Border Width="22" Height="22" CornerRadius="6" Background="{StaticResource AvatarBrush}"/>
+                    <TextBlock Text="{Binding SiteName}" FontSize="15" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding NavItems}"
+                              HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="4"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:NavItemViewModel">
+                            <Button Classes="navLink" Classes.active="{Binding IsSelected}"
+                                    Content="{Binding Title}" Command="{Binding Select}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Border>
+
+        <!-- ===== 主体：左侧目录 + 右侧内容 ===== -->
+        <Grid Grid.Row="1" ColumnDefinitions="248,*">
+
+            <!-- 左侧目录：当前页面的两级小节导航 -->
+            <Border Grid.Column="0"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderSoftBrush}"
+                    BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,22,12,24" Spacing="2">
+                        <TextBlock Text="目录" FontSize="11.5" Margin="8,0,0,2"
+                                   Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding CurrentPage.Title}" FontSize="14.5" FontWeight="Bold"
+                                   TextWrapping="Wrap" Margin="8,0,0,12"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                        <ItemsControl ItemsSource="{Binding Toc}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TocItemViewModel">
+                                    <StackPanel Margin="0,0,0,2">
+                                        <Button Classes="tocLink" Content="{Binding Title}"
+                                                Command="{Binding Jump}" CommandParameter="{Binding Anchor}"/>
+                                        <ItemsControl ItemsSource="{Binding Children}"
+                                                      IsVisible="{Binding HasChildren}" Margin="12,0,0,2">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:TocItemViewModel">
+                                                    <Button Classes="tocSubLink" Content="{Binding Title}"
+                                                            Command="{Binding Jump}"
+                                                            CommandParameter="{Binding Anchor}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- 右侧内容区：栏目页 / 文章页在这里切换 -->
+            <ScrollViewer Grid.Column="1" x:Name="ContentScroller"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <ContentControl Content="{Binding CurrentPage}"/>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,12 @@
+## .NET / Avalonia 构建产物
+**/bin/
+**/obj/
+publish/
+published/
+artifacts/
+
+## IDE 用户配置
+*.user
+*.suo
+.vs/
+.idea/

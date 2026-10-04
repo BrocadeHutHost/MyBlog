@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MyBlog.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="820" d:DesignHeight="900"
+             x:Class="MyBlog.Views.PostPageView"
+             x:DataType="vm:PostPageViewModel">
+    <StackPanel MaxWidth="820" HorizontalAlignment="Left" Margin="32,28,32,0">
+
+        <TextBlock Classes="pageTitle" Text="{Binding Article.Title}"/>
+
+        <!-- 元信息：分类 / 日期 / 阅读时长 / 待补充 -->
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,14,0,0">
+            <Border Classes="chip" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Article.Category}" FontSize="11.5"
+                           Foreground="{StaticResource AccentBrush}"/>
+            </Border>
+            <TextBlock Text="{Binding Article.Date}" FontSize="12" VerticalAlignment="Center"
+                       Foreground="{StaticResource TextMutedBrush}"/>
+            <TextBlock Text="{Binding Article.ReadMinutes, StringFormat='约 {0} 分钟阅读'}" FontSize="12"
+                       VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+            <Border Classes="todoChip" VerticalAlignment="Center" IsVisible="{Binding Article.IsTodo}">
+                <TextBlock Text="待补充" FontSize="11" Foreground="{StaticResource TodoTextBrush}"/>
+            </Border>
+        </StackPanel>
+
+        <TextBlock Text="{Binding Article.Excerpt}" FontSize="13.5" TextWrapping="Wrap" LineHeight="23"
+                   Margin="0,16,0,0" Foreground="{StaticResource TextSecondaryBrush}"/>
+
+        <Border Margin="0,20,0,6" BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="0,1,0,0"/>
+
+        <!-- 正文小节：锚点由 ArticleSection.Anchor 提供，左侧目录据此跳转 -->
+        <ItemsControl ItemsSource="{Binding Sections}"/>
+
+        <!-- 标签 -->
+        <Border Margin="0,8,0,0" Padding="0,16,0,0"
+                BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="标签" FontSize="12.5" VerticalAlignment="Center"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+                <TextBlock Text="{Binding TagsText}" FontSize="12.5" VerticalAlignment="Center"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Padding="0,16,0,20">
+            <TextBlock Text="{Binding Footer}" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+        </Border>
+    </StackPanel>
+</UserControl>

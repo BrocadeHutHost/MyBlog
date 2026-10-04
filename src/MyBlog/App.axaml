@@ -1,0 +1,300 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MyBlog"
+             xmlns:models="using:MyBlog.Models"
+             xmlns:vm="using:MyBlog.ViewModels"
+             x:Class="MyBlog.App"
+             RequestedThemeVariant="Light">
+
+    <!-- 低饱和「石板蓝 + 中性灰」配色，全站统一，避免撞色 -->
+    <Application.Resources>
+        <!-- 背景与表面 -->
+        <SolidColorBrush x:Key="PageBgBrush" Color="#F4F6F9"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="BorderSoftBrush" Color="#E6E9EF"/>
+        <!-- 文字 -->
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#2B3440"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5C6772"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#94A0AE"/>
+        <!-- 主题色：低饱和石板蓝，仅用于强调/交互，不铺大面 -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#5B7CA6"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#4A6B92"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#EAF1F8"/>
+        <!-- 代码块与「待补充」标记 -->
+        <SolidColorBrush x:Key="CodeBgBrush" Color="#F3F5F8"/>
+        <SolidColorBrush x:Key="TodoBgBrush" Color="#FBF3E4"/>
+        <SolidColorBrush x:Key="TodoTextBrush" Color="#9A6B2F"/>
+        <!-- 头像渐变（单一冷色相，不刺眼）-->
+        <LinearGradientBrush x:Key="AvatarBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Offset="0" Color="#7E9CBF"/>
+            <GradientStop Offset="1" Color="#5B7CA6"/>
+        </LinearGradientBrush>
+    </Application.Resources>
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+
+        <!-- 正文小节：标题 + 段落 + 列表 + 代码块，锚点供左侧目录跳转。
+             文章详情页与关于页共用这一份模板。 -->
+        <DataTemplate DataType="models:ArticleSection">
+            <StackPanel Tag="{Binding Anchor}" Margin="0,0,0,30">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="Bold"
+                               TextWrapping="Wrap" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <Border Grid.Column="1" Classes="todoChip" IsVisible="{Binding IsTodo}"
+                            VerticalAlignment="Center" Margin="10,0,0,0">
+                        <TextBlock Text="待补充" FontSize="11" Foreground="{StaticResource TodoTextBrush}"/>
+                    </Border>
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding Paragraphs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="13.5" LineHeight="23"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding Bullets}" IsVisible="{Binding HasBullets}" Margin="0,2,0,10">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*" Margin="0,3,0,0">
+                                <TextBlock Text="·" FontSize="13.5" Foreground="{StaticResource AccentBrush}"
+                                           Margin="2,0,8,0"/>
+                                <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" FontSize="13.5"
+                                           LineHeight="22" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Classes="codeBlock" IsVisible="{Binding HasCode}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding CodeLanguage}" IsVisible="{Binding HasCodeLanguage}"
+                                   FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                        <SelectableTextBlock Text="{Binding Code}" TextWrapping="Wrap"
+                                             FontFamily="Consolas, Menlo, DejaVu Sans Mono, monospace"
+                                             FontSize="12.5" LineHeight="20"
+                                             Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- 文章卡片：首页 / 归档 / 分类 / 标签页共用 -->
+        <DataTemplate DataType="vm:ArticleCardViewModel">
+            <Border Classes="articleCard" Tag="{Binding Anchor}" Width="292" Margin="0,0,16,16">
+                <StackPanel>
+                    <Grid ColumnDefinitions="Auto,Auto,*">
+                        <Border Classes="chip">
+                            <TextBlock Text="{Binding Category}" FontSize="11.5"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                        </Border>
+                        <Border Grid.Column="1" Classes="todoChip" Margin="8,0,0,0" IsVisible="{Binding IsTodo}">
+                            <TextBlock Text="待补充" FontSize="11" Foreground="{StaticResource TodoTextBrush}"/>
+                        </Border>
+                        <TextBlock Grid.Column="2" Text="{Binding Date}" FontSize="11.5"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding Title}" FontSize="15.5" FontWeight="SemiBold" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,10,0,0"/>
+                    <TextBlock Text="{Binding Excerpt}" FontSize="12.5" TextWrapping="Wrap" MaxLines="3"
+                               TextTrimming="CharacterEllipsis" LineHeight="20"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding ReadMinutes, StringFormat='约 {0} 分钟阅读'}" FontSize="11.5"
+                               Foreground="{StaticResource TextMutedBrush}" Margin="0,12,0,0"/>
+                    <Button Classes="linkBtn" Margin="0,10,0,0" Content="阅读全文 →"
+                            HorizontalAlignment="Left" Command="{Binding Open}"
+                            CommandParameter="{Binding Article}"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- 顶部导航链接 -->
+        <Style Selector="Button.navLink">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.navLink:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+        <Style Selector="Button.navLink.active">
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- 左侧目录：一级 / 二级 -->
+        <Style Selector="Button.tocLink">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tocLink:pointerover">
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+        <Style Selector="Button.tocSubLink">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tocSubLink:pointerover">
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <!-- 主按钮（主题色填充，白字）-->
+        <Style Selector="Button.btnPrimary">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.btnPrimary:pointerover">
+            <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+        </Style>
+
+        <!-- 次按钮（描边）-->
+        <Style Selector="Button.btnGhost">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.btnGhost:pointerover">
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+        </Style>
+
+        <!-- 文字链接按钮 -->
+        <Style Selector="Button.linkBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.linkBtn:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource AccentHoverBrush}"/>
+        </Style>
+
+        <!-- 标签胶囊（可点击，跳到对应分组）-->
+        <Style Selector="Button.tagChip">
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tagChip:pointerover">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
+        <!-- 文章卡片 -->
+        <Style Selector="Border.articleCard">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="BoxShadow" Value="none"/>
+        </Style>
+        <Style Selector="Border.articleCard:pointerover">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BoxShadow" Value="0 4 16 0 #1F2D3D14"/>
+        </Style>
+
+        <!-- 通用面板 -->
+        <Style Selector="Border.panel">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <!-- 代码块 -->
+        <Style Selector="Border.codeBlock">
+            <Setter Property="Background" Value="{StaticResource CodeBgBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+
+        <!-- 「待补充」标记 -->
+        <Style Selector="Border.todoChip">
+            <Setter Property="Background" Value="{StaticResource TodoBgBrush}"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="7,2"/>
+        </Style>
+
+        <!-- 标签 / 分类 chip -->
+        <Style Selector="Border.chip">
+            <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="8,3"/>
+        </Style>
+
+        <!-- 文字层级 -->
+        <Style Selector="TextBlock.pageTitle">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="TextBlock.pageSubtitle">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+        <Style Selector="TextBlock.sectionHeading">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+        <Style Selector="TextBlock.groupHeading">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </Application.Styles>
+</Application>

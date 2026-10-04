@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MyBlog.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="920" d:DesignHeight="900"
+             x:Class="MyBlog.Views.CategoriesPageView"
+             x:DataType="vm:CategoriesPageViewModel">
+    <StackPanel MaxWidth="920" HorizontalAlignment="Left" Margin="32,28,32,0">
+
+        <TextBlock Classes="pageTitle" Text="分类"/>
+        <TextBlock Classes="pageSubtitle" Text="{Binding Total, StringFormat='共 {0} 篇文章，按分类归拢。'}"/>
+
+        <StackPanel Tag="cat-all" Margin="0,28,0,0">
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CardGroupViewModel">
+                        <StackPanel Tag="{Binding Anchor}" Margin="0,0,0,18">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="sectionHeading" Text="{Binding Title}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Count}" FontSize="12"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="篇" FontSize="12"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Cards}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <Border Margin="0,4,0,0" Padding="0,16,0,20"
+                BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding Footer}" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+        </Border>
+    </StackPanel>
+</UserControl>

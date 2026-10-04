@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MyBlog.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="920" d:DesignHeight="900"
+             x:Class="MyBlog.Views.TagsPageView"
+             x:DataType="vm:TagsPageViewModel">
+    <StackPanel MaxWidth="920" HorizontalAlignment="Left" Margin="32,28,32,0">
+
+        <TextBlock Classes="pageTitle" Text="标签"/>
+        <TextBlock Classes="pageSubtitle" Text="点一枚标签，就跳到下面按标签分好的那一组。"/>
+
+        <!-- 标签云 -->
+        <StackPanel Tag="tag-cloud" Margin="0,26,0,0">
+            <TextBlock Classes="sectionHeading" Text="标签云"/>
+            <ItemsControl ItemsSource="{Binding Chips}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TagChipViewModel">
+                        <Button Classes="tagChip" Command="{Binding Jump}" CommandParameter="{Binding Anchor}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Name}" FontSize="12.5" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Count}" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- 按标签浏览 -->
+        <StackPanel Tag="tag-browse" Margin="0,22,0,0">
+            <TextBlock Classes="groupHeading" Text="按标签浏览"/>
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CardGroupViewModel">
+                        <StackPanel Tag="{Binding Anchor}" Margin="0,0,0,18">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="sectionHeading" Text="{Binding Title}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Count}" FontSize="12"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="篇" FontSize="12"
+                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Cards}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <Border Margin="0,4,0,0" Padding="0,16,0,20"
+                BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Text="{Binding Footer}" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+        </Border>
+    </StackPanel>
+</UserControl>
