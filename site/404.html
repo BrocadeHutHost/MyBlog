@@ -4,28 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>页面不存在 · 锦 的博客</title>
-    <link rel="icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
-    <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
+<link rel="icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
+<link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
 <!-- 404 会在任意路径下被访问，所以这个页面自带样式与链接修正，不依赖 assets 目录 -->
- <header class="topbar">
-    <div class="topbar-inner">
-        <a class="brand" href="index.html"><img class="brand-mark" src="https://avatars.githubusercontent.com/BrocadeHutHost?s=256" alt="" referrerpolicy="no-referrer"><span>锦 的博客</span></a>
-        <nav class="topnav">
-            <a href="index.html">首页</a>
-            <a href="articles.html" aria-current="page">文章</a>
-            <a href="courses.html">课程</a>
-            <a href="categories.html">分类</a>
-            <a href="tags.html">标签</a>
-            <a href="about.html">关于</a>
-        </nav>
-    </div>
-</header>
 <style>
     :root { --text:#2B3440; --text-2:#5C6772; --muted:#94A0AE; --accent:#5B7CA6; --border:#E6E9EF; }
+    * { box-sizing:border-box; }
     body { margin:0; background:#F4F6F9; color:var(--text); line-height:1.7;
            font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif; }
-    .wrap { max-width:640px; margin:0 auto; padding:80px 24px; }
-    h1 { margin:0; font-size:64px; }
+
+    /* ===== 顶栏（之前缺失的样式，已按站点配色补全） ===== */
+    .topbar { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92);
+              backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid var(--border); }
+    .topbar-inner { max-width:960px; margin:0 auto; padding:0 24px; height:60px;
+                    display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; color:var(--text); }
+    .brand-mark { width:28px; height:28px; border-radius:50%; display:block; }
+    .topnav { display:flex; align-items:center; gap:2px; flex-wrap:wrap; }
+    .topnav a { padding:6px 12px; border-radius:6px; font-size:14px; color:var(--text-2); }
+    .topnav a:hover { color:var(--accent); background:#EDF1F6; }
+    .topnav a[aria-current="page"] { color:var(--accent); background:#EDF1F6; font-weight:600; }
+
+    /* ===== 404 主体 ===== */
+    .wrap { max-width:640px; margin:0 auto; padding:72px 24px 48px; }
+    h1 { margin:0; font-size:64px; line-height:1.1; }
     .sub { margin:8px 0 28px; color:var(--muted); font-size:14px; }
     ul { margin:0; padding:0; list-style:none; }
     li { position:relative; padding-left:16px; margin-bottom:6px; color:var(--text-2); font-size:14px; }
@@ -33,9 +35,30 @@
     a { color:var(--accent); text-decoration:none; }
     a:hover { color:#4A6B92; }
     .foot { margin-top:40px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; }
+
+    @media (max-width:560px) {
+        .topbar-inner { height:auto; padding:10px 16px; flex-direction:column; align-items:flex-start; gap:6px; }
+        .wrap { padding-top:48px; }
+        h1 { font-size:48px; }
+    }
 </style>
 </head>
 <body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="#" data-root=""><img class="brand-mark" src="https://avatars.githubusercontent.com/BrocadeHutHost?s=256" alt="" referrerpolicy="no-referrer"><span>锦 的博客</span></a>
+        <nav class="topnav">
+            <a href="#" data-root="">首页</a>
+            <a href="#" data-root="articles.html">文章</a>
+            <a href="#" data-root="courses.html">课程</a>
+            <a href="#" data-root="categories.html">分类</a>
+            <a href="#" data-root="tags.html">标签</a>
+            <a href="#" data-root="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
 <div class="wrap">
     <h1>404</h1>
     <p class="sub">这个地址没有对应的页面。</p>
@@ -44,11 +67,16 @@
     </ul>
     <p class="foot">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</p>
 </div>
+
 <script>
     // 站点可能被部署在子路径下（https://<user>.github.io/<repo>/），
     // 404 页面的地址又是未知的，所以按路径第一段算出站点根目录。
+    // 顶栏链接同样是相对路径，在 404 页上会指错目录，因此统一改成
+    // data-root，由这一段脚本一次性修正。
     (function () {
-        var seg = location.pathname.split("/")[1];
+        // 若已知部署子路径可直接写死（如 "/blog/"）；留空则按路径第一段自动推断。
+        var ROOT = "";
+        var seg = ROOT || location.pathname.split("/")[1];
         var root = seg ? "/" + seg + "/" : "/";
         document.querySelectorAll("[data-root]").forEach(function (a) {
             a.setAttribute("href", root + a.getAttribute("data-root"));
