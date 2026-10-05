@@ -164,6 +164,8 @@
             var id = "course-" + c.slug;
             var files = c.files || [];
             var notes = c.notes || [];
+            /* notesHtml 是 notes.md 渲染好的 HTML（Markdown）；没有才退回 notes 的纯文本段落 */
+            var notesHtml = c.notesHtml || "";
             var html = '<section class="group course">';
             html += '<h2 id="' + esc(id) + '" data-toc-text="' + esc(c.name) + '">' + esc(c.name) +
                 (c.term ? ' <span class="term">' + esc(c.term) + "</span>" : "") + "</h2>";
@@ -176,10 +178,12 @@
                 : '<p class="page-sub">资料还没整理上来，先空着。</p>';
 
             html += '<h3 id="' + esc(id) + '-notes" data-toc-text="感悟与笔记">感悟与笔记' +
-                (notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
-            html += notes.length
-                ? notes.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("")
-                : '<p class="page-sub">还没写。</p>';
+                (notesHtml || notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
+            html += notesHtml
+                ? notesHtml
+                : notes.length
+                    ? notes.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("")
+                    : '<p class="page-sub">还没写。</p>';
 
             return html + "</section>";
         }).join("");

@@ -352,7 +352,7 @@ function headingId(text, used) {
  * 行内语法。思路：把「生成好的 HTML」和「原样透传的 HTML」先塞进占位符，
  * 再把剩下的纯文本整体转义，最后做粗体/斜体，并还原占位符。
  */
-function inline(text, ctx) {
+function inline(text, ctx, blockImage) {
     const tokens = [];
     const stash = (html) => "\u0000" + (tokens.push(html) - 1) + "\u0001";
 
@@ -370,7 +370,7 @@ function inline(text, ctx) {
 
     // 4. 图片（相对路径在这里解析成从站点根出发的路径）
     s = s.replace(/!\[([^\]]*)\]\(\s*(?:<([^>\n]+)>|([^)\s]+))(?:\s+["']([^"']*)["'])?\s*\)/g,
-        (m, alt, angled, bare, title) => stash(renderImage(alt, angled || bare, title, ctx)));
+        (m, alt, angled, bare, title) => stash(renderImage(alt, angled || bare, title, ctx, blockImage)));
 
     // 5. 链接（指向某篇 md 的会自动换成那篇的 html）
     s = s.replace(/\[([^\]]*)\]\(\s*(?:<([^>\n]+)>|([^)\s]+))(?:\s+["']([^"']*)["'])?\s*\)/g,
@@ -404,7 +404,7 @@ function inline(text, ctx) {
 }
 
 /** 图片 → <figure>，自动补 alt、像素尺寸，以及「文件名 · 大小」图注 */
-function renderImage(alt, rawSrc, title, ctx) {
+function renderImage(alt, rawSrc, title, ctx, blockImage) {
     const src = String(rawSrc || "").trim();
     const remote = /^(https?:)?\/\//i.test(src) || /^data:/i.test(src);
     const altText = (alt || "").trim();
@@ -432,6 +432,7 @@ function renderImage(alt, rawSrc, title, ctx) {
                 warn(ctx.label + " 图片 " + src + " 不在 site/ 目录里，页面可能读不到");
             }
             report.stats.images++;
+            if (ctx.images) { ctx.images.add(abs); }   // 记下来，别让笔记配图混进资料列表
         } else {
             fail(ctx.label + " 图片不存在：" + src + "（按相对 " + relOf(ctx.dir) + "/ 找的）");
             // 报错的同时，把「这个文件本该放哪」写进 src，补上图片就能直接好
@@ -466,7 +467,11 @@ function renderImage(alt, rawSrc, title, ctx) {
             "</figcaption>";
     }
 
-    return '<figure class="fig"><img ' + attrs.join(" ") + ">" + caption + "</figure>";
+    const imgTag = "<img " + attrs.join(" ") + ">";
+    // 单独占一行的图片 → 段落级 <figure>（带图注）；夹在文字里的 → 行内 <img>。
+    // 否则 <figure> 会被塞进 <p> 里，HTML 直接是坏的
+    if (!blockImage) { return imgTag; }
+    return '<figure class="fig">' + imgTag + caption + "</figure>";
 }
 
 /** 站内链接：写成别的文章的 md 时，自动指向生成出来的 html */
@@ -600,7 +605,9 @@ function renderBlocks(lines, ctx, top) {
             let level = heading[1].length;
             let text = heading[2];
             if (level === 1) {
-                warn(ctx.label + " 正文里出现了 # 一级标题，已按 ## 处理（一级留给页面标题）");
+                if (ctx.warnH1 !== false) {
+                    warn(ctx.label + " 正文里出现了 # 一级标题，已按 ## 处理（一级留给页面标题）");
+                }
                 level = 2;
             }
             level = Math.min(Math.max(level, 2), 6);
@@ -690,14 +697,18 @@ function renderBlocks(lines, ctx, top) {
 
         let html = "";
         let hard = false;
+        // 整段只有图片 → 每张都做成带图注的 <figure>（段落不再包 <p>）；
+        // 只要段落里还有文字，图片就都按行内 <img> 处理，免得 <figure> 被塞进 <p>
+        const imageParagraph = buf.every((l) => RE_IMAGE_ONLY.test(l));
         for (const raw of buf) {
             const hardBreak = /\s{2,}$/.test(raw) || /\\$/.test(raw);
             const text = raw.replace(/\s+$/, "").replace(/\\$/, "");
-            html = hard ? html + "<br>\n" + inline(text, ctx) : joinSoft(html, inline(text, ctx));
+            html = hard
+                ? html + "<br>\n" + inline(text, ctx, imageParagraph)
+                : joinSoft(html, inline(text, ctx, imageParagraph));
             hard = hardBreak;
         }
-        // 整段就是图片时，别再套 <p>：<figure> 是块级元素，套进去浏览器会把 <p> 提前闭合
-        out += buf.every((l) => RE_IMAGE_ONLY.test(l))
+        out += imageParagraph
             ? html + "\n"
             : "<p>" + html + "</p>\n";
     }
@@ -979,11 +990,106 @@ function walkFiles(dir, base, out) {
     return out;
 }
 
-const IGNORED_IN_FILES = new Set([".gitkeep", "course.json", "desktop.ini", "Thumbs.db"]);
+const IGNORED_IN_FILES = new Set([".gitkeep", "course.json", "notes.md", "notes.markdown", "desktop.ini", "Thumbs.db"]);
+
+/** 统一放笔记的目录（可选）：site/notes/note_<课程文件夹名>_<笔记名>.md */
+const CENTRAL_NOTES = path.join(SITE, "notes");
+
+/** 笔记文件名：note_ 开头（note- 也行）、.md 结尾 */
+const RE_NOTE_FILE = /^note[_-].*\.(md|markdown)$/i;
+
+function escapeRegExp(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** note_SM_第八章笔记.md → 第八章笔记（课程名那一段自动去掉） */
+function noteTitleFromName(file, courseSlug) {
+    let base = path.basename(file).replace(/\.(md|markdown)$/i, "").replace(/^note[_-]/i, "");
+    const slug = String(courseSlug || "");
+    if (slug && base.toLowerCase() === slug.toLowerCase()) {
+        base = "";
+    } else if (slug && base.toLowerCase().startsWith(slug.toLowerCase() + "_")) {
+        base = base.slice(slug.length + 1);
+    }
+    return base.trim();
+}
+
+/**
+ * 找一门课的所有笔记（= 若干个 md，每个一篇）：
+ *   ① site/files/<课程>/notes.md                    单篇，直接铺开
+ *   ② site/files/<课程>/**\/note_<课程>_<笔记名>.md   放课程文件夹里，可多篇
+ *   ③ site/notes/**\/note_<课程>_<笔记名>.md          统一放一处，按文件名里的课程名归属
+ */
+function collectNotes(dir, slug, centralUsed) {
+    const found = [];
+
+    const single = ["notes.md", "notes.markdown"].map((f) => path.join(dir, f)).find((f) => fs.existsSync(f));
+    if (single) { found.push({ file: single, title: "", label: relOf(single) }); }
+
+    const local = walkFiles(dir, dir, [])
+        .filter((rel) => RE_NOTE_FILE.test(path.basename(rel)))
+        .map((rel) => path.join(dir, rel))
+        .sort(naturalCompare);
+    for (const file of local) {
+        found.push({ file, title: noteTitleFromName(file, slug), label: relOf(file) });
+    }
+
+    if (fs.existsSync(CENTRAL_NOTES)) {
+        const re = new RegExp("^note[_-]" + escapeRegExp(slug) + "([_-].*)?\\.(md|markdown)$", "i");
+        const central = walkFiles(CENTRAL_NOTES, CENTRAL_NOTES, [])
+            .filter((rel) => re.test(path.basename(rel)))
+            .map((rel) => path.join(CENTRAL_NOTES, rel))
+            .sort(naturalCompare);
+        for (const file of central) {
+            centralUsed.add(file);
+            found.push({ file, title: noteTitleFromName(file, slug) || "笔记", label: relOf(file) });
+        }
+    }
+
+    return found;
+}
+
+/** 笔记 md 开头如果是 # 标题，就拿它当笔记名（并从正文里去掉） */
+function splitNoteTitle(md, fallback) {
+    const lines = md.split("\n");
+    let i = 0;
+    while (i < lines.length && !lines[i].trim()) { i++; }
+    const m = /^#\s+(.+?)\s*$/.exec((lines[i] || "").trim());
+    if (m) { return { title: m[1], body: lines.slice(i + 1).join("\n") }; }
+    return { title: fallback, body: md };
+}
+
+/** 把若干篇笔记拼成「感悟与笔记」那块的内容：多篇时先给一个笔记列表 */
+function buildNotesHtml(blocks, slug) {
+    if (!blocks.length) { return ""; }
+    // 只有一篇、又没标题（老的单个 notes.md）→ 直接铺开，不套卡片
+    if (blocks.length === 1 && !blocks[0].title) { return blocks[0].html; }
+
+    const items = blocks.map((b, i) => {
+        const id = "course-" + slug + "-note-" + (i + 1);
+        return '<article class="note note-item" id="' + esc(id) + '">' +
+            (b.title ? '<h3 class="note-title" id="' + esc(id) + '-title">' + esc(b.title) + "</h3>" : "") +
+            '<div class="note-body" data-no-toc>' + b.html + "</div></article>";
+    });
+
+    const index = blocks.length > 1
+        ? '<ul class="note-index">' + blocks.map((b, i) =>
+            '<li><a href="#course-' + esc(slug) + "-note-" + (i + 1) + '">' + esc(b.title || "笔记") + "</a></li>"
+        ).join("") + "</ul>"
+        : "";
+
+    return index + items.join("\n");
+}
 
 function buildCourses() {
     if (!fs.existsSync(FILES_SRC)) { return []; }
     const courses = [];
+    const notesHeadingIds = new Set();
+    const centralUsed = new Set();   // site/notes/ 里被用到的笔记文件
+
+    const courseSlugs = fs.readdirSync(FILES_SRC, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && !e.name.startsWith("_") && !e.name.startsWith("."))
+        .map((e) => e.name);
 
     for (const entry of fs.readdirSync(FILES_SRC, { withFileTypes: true })) {
         if (!entry.isDirectory() || entry.name.startsWith("_") || entry.name.startsWith(".")) { continue; }
@@ -1002,12 +1108,44 @@ function buildCourses() {
         }
 
         const notes = (Array.isArray(meta.notes) ? meta.notes : meta.notes ? [meta.notes] : []).map((n) => String(n));
+
+        // 感悟与笔记：一个 md = 一篇笔记，可以放好多篇（位置见 collectNotes 的注释）。
+        // 一篇笔记 md 都没有时，才退回 course.json 里的 notes 数组（纯文本，一段一个字符串）。
+        const notesImages = new Set();
+        const noteBlocks = collectNotes(dir, entry.name, centralUsed)
+            .map((n) => {
+                // 笔记也是 md，允许像文章那样写 front matter：title 优先当笔记名，其余字段忽略
+                const fm = parseFrontMatter(readText(n.file), n.label + " ");
+                const fallback = typeof fm.data.title === "string" && fm.data.title.trim()
+                    ? fm.data.title.trim()
+                    : n.title;
+                const { title, body } = splitNoteTitle(fm.body, fallback);
+                return {
+                    title,
+                    html: renderBlocks(body.split("\n"), {
+                        dir,
+                        label: n.label,
+                        headingIds: notesHeadingIds,   // 各课程共用，保证小标题锚点不撞车
+                        warnH1: false,                 // 笔记里用 # 当标题很正常，不用提醒
+                        images: notesImages            // 笔记引用到的图，之后从资料列表里剔掉
+                    }, false).trim()
+                };
+            })
+            .filter((n) => n.title || n.html);
+
+        const notesHtml = buildNotesHtml(noteBlocks, entry.name);
+        if (notesHtml && notes.length) {
+            info("site/files/" + entry.name + "/ 既有笔记 md、course.json 里又有 notes，这次用 md 那份");
+        }
+
         const fileNotes = meta.fileNotes && typeof meta.fileNotes === "object" ? meta.fileNotes : {};
         const skip = new Set((Array.isArray(meta.exclude) ? meta.exclude : []).map((s) => String(s)));
         const urlBase = "files/" + entry.name + "/";
 
         const list = walkFiles(dir, dir, [])
-            .filter((rel) => !IGNORED_IN_FILES.has(path.basename(rel)) && !skip.has(rel))
+            .filter((rel) => !IGNORED_IN_FILES.has(path.basename(rel)) && !skip.has(rel) &&
+                !RE_NOTE_FILE.test(path.basename(rel)) &&
+                !notesImages.has(path.join(dir, rel)))
             .sort(naturalCompare)
             .map((rel) => {
                 const abs = path.join(dir, rel);
@@ -1046,9 +1184,25 @@ function buildCourses() {
             order: Number.isFinite(Number(meta.order)) ? Number(meta.order) : 999,
             files: list,
             links,
-            notes
+            notes,
+            notesHtml
         });
         report.stats.files += list.length + links.length;
+    }
+
+    // site/notes/ 里没归到任何课程的笔记，提醒一下（多半是文件名里的课程名写错了）
+    if (fs.existsSync(CENTRAL_NOTES)) {
+        for (const rel of walkFiles(CENTRAL_NOTES, CENTRAL_NOTES, [])) {
+            if (centralUsed.has(path.join(CENTRAL_NOTES, rel))) { continue; }
+            const base = path.basename(rel);
+            if (!/\.(md|markdown)$/i.test(base)) { continue; }
+            if (RE_NOTE_FILE.test(base)) {
+                warn("site/notes/" + rel + " 没归到任何课程：文件名里的课程名要是 site/files/ 下的文件夹名（现有：" +
+                    courseSlugs.join("、") + "）");
+            } else if (/^note/i.test(base)) {
+                warn("site/notes/" + rel + " 看着像笔记但名字不对，要写成 note_<课程>_<笔记名>.md，已忽略");
+            }
+        }
     }
 
     courses.sort((a, b) => a.order - b.order || naturalCompare(a.slug, b.slug));
@@ -1069,7 +1223,8 @@ function buildCoursesJs(courses) {
             ? "[\n" + items.map((f) => "            " + JSON.stringify(f)).join(",\n") + "\n        ]"
             : "[]";
         lines.push("        files: " + filesSrc + ",");
-        lines.push("        notes: " + JSON.stringify(c.notes));
+        lines.push("        notes: " + JSON.stringify(c.notes) + (c.notesHtml ? "," : ""));
+        if (c.notesHtml) { lines.push("        notesHtml: " + JSON.stringify(c.notesHtml)); }
         lines.push("    }");
         return lines.join("\n");
     }).join(",\n");
@@ -1078,8 +1233,10 @@ function buildCoursesJs(courses) {
         "\n" +
         "/* 这门课的资料清单是扫 site/files/<slug>/ 自动生成的：只要建好文件夹、" +
         "把文件丢进去，文件名和大小都会自动读出来。\n" +
-        "   课程名默认就是文件夹名；学期、简介、感悟、资料备注这些想写才写，" +
-        "放在 site/files/<slug>/course.json 里（可选）。 */\n" +
+        "   课程名默认就是文件夹名；学期、简介、资料备注想写才写，放在 site/files/<slug>/course.json 里。\n" +
+        "   感悟与笔记：一篇笔记一个 md，文件名 note_<课程>_<笔记名>.md，" +
+        "放 site/files/<slug>/ 里或统一的 site/notes/ 里都行（笔记里引用的图片不算资料）。\n" +
+        "   也可以只用 site/files/<slug>/notes.md 一篇，或者 course.json 的 notes 数组（纯文本）。 */\n" +
         "window.COURSES = [\n" + (body || "") + "\n];\n";
 }
 
