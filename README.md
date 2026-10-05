@@ -80,11 +80,17 @@ node tools/build-blog.mjs
 一门课在「课程」页上是一节，里面分「资料」和「感悟与笔记」两块。左侧目录会自动列出
 「课程名 → 资料 / 感悟与笔记」，不用手工维护。
 
-**加一门课：**
+**加一门课，只做一件事就够了：**
 
-1. 在 `site/files/` 下建一个以课程短名命名的文件夹，比如 `site/files/ml/`，把文件丢进去
-   （文件名建议用英文或拼音，不要有空格；子文件夹也会被递归扫到）；
-2. 同目录放一个 `course.json`，写课程名 / 学期 / 简介 / 感悟 / 资料备注：
+1. 在 `site/files/` 下建一个文件夹，比如 `site/files/ml/`，把文件丢进去
+   （文件夹名就是课程名；子文件夹也会被递归扫到）；
+2. 推上去（或者本地跑一遍 `node tools/build-blog.mjs`）。
+
+脚本会递归扫这个文件夹，把**每个文件的名字和体积**（`12.5 MB` 这种）自动写进
+`site/assets/courses.js`，页面上直接就是可下载的清单——不用手算大小，不用手敲清单。
+`course.json`、`.gitkeep` 这类文件会被跳过。
+
+**`course.json` 是可选的**，想多写点东西时才加（放在同一个文件夹里）：
 
 ```json
 {
@@ -97,16 +103,22 @@ node tools/build-blog.mjs
     ],
     "notes": [
         "感悟写在这里，一段一个字符串。"
-    ]
+    ],
+    "order": 1
 }
 ```
 
-3. 跑一遍 `node tools/build-blog.mjs`。
+| 字段 | 作用 | 不写会怎样 |
+| --- | --- | --- |
+| `name` | 页面上显示的课程名 | 用文件夹名 |
+| `term` | 学期，显示在课程名旁边 | 不显示 |
+| `intro` | 课程名下面的一句话 | 不显示 |
+| `fileNotes` | 给具体文件加备注（键是文件名或相对路径） | 没有备注 |
+| `links` | 外部链接（网盘等大文件），不做大小检查 | 不显示 |
+| `notes` | 「感悟与笔记」的段落 | 显示「还没写」 |
+| `order` | 课程之间的排序（越小越前） | 按文件夹名排 |
 
-**文件名和大小都是脚本自己读的**：它会递归扫 `site/files/<课程>/`，把每个文件的
-名字、体积（`12.5 MB` 这种）写进 `site/assets/courses.js`，所以不用再手算、
-手敲资料清单。`course.json`、`.gitkeep` 这类文件会被跳过；`links` 里的外部链接
-（网盘等）原样带过去。
+**别在 `course.json` 里列文件**——文件清单是扫出来的，列了也不看。
 
 `files` 一项都没有、`notes` 是空数组时，页面上会显示「待补充」，不会有死链。
 
@@ -133,7 +145,7 @@ site/                     ← 整个网站就是这一个目录，GitHub Pages �
   <短名>.html             ★ 每篇文章（由 md 生成，不要手改）
   posts/                  ★ 文章源文件：posts/<短名>/index.md，图片就放它旁边
     _template/index.md    新文章模板（_ 开头，不参与生成）
-  files/                  课程资料（files/<课程>/ + course.json）
+  files/                  课程资料（files/<课程>/，course.json 可选）
   assets/
     site.css              全站样式（配色、顶栏、左侧目录、卡片、代码块、图片、表格）
     site.js               渲染文章列表 / 课程资料 + 生成左侧目录 + 当前小节高亮（手写）
@@ -145,7 +157,8 @@ tools/
 .github/workflows/deploy.yml   推送到 main 后发布 site/ 到 Pages
 ```
 
-带 ★ 的文件都是**自动生成**的：改 `site/posts/` 或 `site/files/` 里的源文件，然后重新跑脚本。
+带 ★ 的文件都是**自动生成**的：改 `site/posts/` 或 `site/files/` 里的源文件，
+推上去就行（工作流会现场生成一遍）；想在本地先看效果就自己跑一下脚本。
 
 ## 生成命令
 
@@ -155,7 +168,7 @@ tools/
 node tools/build-blog.mjs            # 生成一次
 node tools/build-blog.mjs --watch    # 改 md / 课程资料就自动重新生成
 node tools/build-blog.mjs --serve    # 顺手起本地服务器（默认 8080，用 --port 换）
-node tools/build-blog.mjs --check    # 只检查产物是不是最新的（CI 用，落后就退出码 1）
+node tools/build-blog.mjs --check    # 只看产物是不是最新的，不写文件（落后就退出码 1）
 ```
 
 脚本会打印每次生成了哪些文件，以及所有警告 / 错误：比如图片路径写错、front matter
@@ -176,8 +189,8 @@ python -m http.server 8080 --directory site
 
 ## 部署
 
-推送到 `main` 即可，工作流会先跑一次 `node tools/build-blog.mjs --check` 确认生成物是最新的，
-然后把 `site/` 目录作为 Pages 产物发布：
+推送到 `main` 即可。工作流会先用 md 和课程资料**现场生成一遍**（所以本地没跑过脚本也不会漏页面），
+再把 `site/` 目录作为 Pages 产物发布：
 
 ```powershell
 git add -A

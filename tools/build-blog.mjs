@@ -104,6 +104,11 @@ function fail(msg) {
     console.log("  \u2717 " + msg);
 }
 
+/** 提示（不算警告，也不影响退出码）：只是告诉你可以再做点什么 */
+function info(msg) {
+    console.log("  \u00b7 " + msg);
+}
+
 function relOf(file) {
     return path.relative(ROOT, file).split(path.sep).join("/");
 }
@@ -983,8 +988,8 @@ function buildCourses() {
                 fail("site/files/" + entry.name + "/course.json 不是合法 JSON：" + e.message);
             }
         } else {
-            warn("site/files/" + entry.name + "/ 没有 course.json，显示名先用文件夹名；" +
-                "想要学期/简介/感悟，就在这个文件夹里建一个 course.json");
+            info("site/files/" + entry.name + "/ 里没有 course.json，课程名就用文件夹名「" + entry.name +
+                "」；想写学期、简介、感悟，就在这个文件夹里加一个 course.json");
         }
 
         const notes = (Array.isArray(meta.notes) ? meta.notes : meta.notes ? [meta.notes] : []).map((n) => String(n));
@@ -1062,8 +1067,10 @@ function buildCoursesJs(courses) {
 
     return GEN_JS_BANNER +
         "\n" +
-        "/* 这门课的资料清单是扫 site/files/<slug>/ 自动生成的（文件名和大小都自动读），\n" +
-        "   课程名、学期、简介、感悟、资料备注写在 site/files/<slug>/course.json 里。 */\n" +
+        "/* 这门课的资料清单是扫 site/files/<slug>/ 自动生成的：只要建好文件夹、" +
+        "把文件丢进去，文件名和大小都会自动读出来。\n" +
+        "   课程名默认就是文件夹名；学期、简介、感悟、资料备注这些想写才写，" +
+        "放在 site/files/<slug>/course.json 里（可选）。 */\n" +
         "window.COURSES = [\n" + (body || "") + "\n];\n";
 }
 
