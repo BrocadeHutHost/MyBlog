@@ -1,5 +1,5 @@
----
-title: 用 Markdown 写博客：这里支持哪些写法
+﻿---
+title: 用 Markdown 写博客：用于我备忘
 date: 2026-10-05
 category: 随笔
 tags: [Markdown, 写作]
