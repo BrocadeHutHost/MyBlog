@@ -1239,6 +1239,8 @@ function buildCourses() {
                 images: notesImages,           // 笔记引用到的图，之后从资料列表里剔掉
                 base: NOTES_BASE               // 笔记页面在 site/notes/ 下
             };
+            // 注意：hasMath 是渲染过程中才会被置上的，所以必须先渲染再取
+            const noteHtml = renderBlocks(body.split("\n"), noteCtx, false).trim();
             const note = {
                 slug: noteSlugFor(entry.name, n.title, noteSlugs),
                 title: title || "笔记",
@@ -1249,7 +1251,7 @@ function buildCourses() {
                 courseName,
                 body,
                 hasMath: noteCtx.hasMath === true,
-                html: renderBlocks(body.split("\n"), noteCtx, false).trim()
+                html: noteHtml
             };
             notePages.push(note);
             noteList.push({ title: note.title, slug: note.slug, draft: note.draft });
