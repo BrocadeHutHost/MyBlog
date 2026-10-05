@@ -39,8 +39,14 @@ const POSTS_JS = path.join(ASSETS, "posts.js");
 const COURSES_JS = path.join(ASSETS, "courses.js");
 
 const SITE_NAME = "锦 的博客";
-const FAVICON =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235B7CA6'/%3E%3Ctext x='16' y='23' font-size='19' font-family='sans-serif' fill='%23fff' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E";
+
+/** 头像直接用 GitHub 上的地址（实时取，仓库里不放图片）：换了 GitHub 头像，页面跟着变 */
+const AVATAR_URL = "https://avatars.githubusercontent.com/BrocadeHutHost?s=256";
+
+/** 标签页图标 / 添加到主屏幕时用的图，和头像同一个地址，浏览器只会缓存一份 */
+const ICON_LINKS =
+    '    <link rel="icon" href="' + AVATAR_URL + '">\n' +
+    '    <link rel="apple-touch-icon" href="' + AVATAR_URL + '">\n';
 
 const NAV = [
     ["index.html", "首页"],
@@ -863,7 +869,7 @@ function buildPost(found) {
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
         "<title>" + esc(title) + " · " + SITE_NAME + "</title>\n" +
         '<meta name="description" content="' + esc(excerpt) + '">\n' +
-        '    <link rel="icon" href="' + FAVICON + '">\n' +
+        ICON_LINKS +
         '    <link rel="stylesheet" href="assets/site.css">\n' +
         "</head>\n" +
         "<body>\n\n" +
@@ -910,7 +916,7 @@ function pageHeader(current) {
     ).join("\n");
     return '<header class="topbar">\n' +
         '    <div class="topbar-inner">\n' +
-        '        <a class="brand" href="index.html"><span class="brand-mark"></span><span>' + SITE_NAME + "</span></a>\n" +
+        '        <a class="brand" href="index.html"><img class="brand-mark" src="' + AVATAR_URL + '" alt="" referrerpolicy="no-referrer"><span>' + SITE_NAME + "</span></a>\n" +
         '        <nav class="topnav">\n' + links + "\n        </nav>\n" +
         "    </div>\n" +
         "</header>\n\n";

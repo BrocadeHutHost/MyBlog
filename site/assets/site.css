@@ -63,7 +63,10 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 .brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 700; font-size: 15px; }
 .brand:hover { color: var(--text); }
 .brand-mark {
-    width: 22px; height: 22px; border-radius: 6px;
+    display: block;
+    width: 24px; height: 24px; border-radius: 50%;
+    object-fit: cover;
+    /* 头像图来自 GitHub，加载出来之前先显示这块底色 */
     background: linear-gradient(135deg, #7E9CBF, #5B7CA6);
 }
 
@@ -129,10 +132,11 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 .hero-bio { margin: 14px 0 0; max-width: 560px; color: var(--text-2); font-size: 13.5px; }
 .hero-avatar {
     flex: 0 0 auto;
+    display: block;
     width: 150px; height: 150px; border-radius: 50%;
-    display: grid; place-items: center;
+    object-fit: cover;
+    /* 头像图来自 GitHub，加载出来之前先显示这个大圆底色 */
     background: linear-gradient(135deg, #7E9CBF, #5B7CA6);
-    color: #fff; font-size: 56px; font-weight: 700;
 }
 
 section.block { margin-top: 40px; }

@@ -20,6 +20,18 @@
 第一篇文章是 **《Hello World》**：源文件 `site/posts/hello-world/index.md`，
 生成的页面是 `site/hello-world.html`。
 
+## 头像与站名
+
+顶栏的小圆头像、首页的大圆头像、浏览器标签页上的图标，用的是同一个地址——直接引用 GitHub 头像，
+**仓库里不放图片**：你换了 GitHub 头像，刷新页面就跟着变（浏览器会缓存一份）。
+
+```text
+https://avatars.githubusercontent.com/BrocadeHutHost?s=256
+```
+
+要换成别的图、或者改站名（「锦 的博客」）：手写的页面在 `site/*.html` 里改；
+每篇文章页面在 `tools/build-blog.mjs` 顶部的 `AVATAR_URL` 和 `SITE_NAME` 改，然后重新生成。
+
 ## 写一篇文章
 
 1. 建文件夹 `site/posts/<短名>/`——`<短名>` 就是 URL（例如 `wpf-to-avalonia`）；
