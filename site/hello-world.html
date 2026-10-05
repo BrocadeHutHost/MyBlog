@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hello World · Zoo 的技术随笔</title>
+<meta name="description" content="第一篇文章：为什么开这个站、第一行代码，以及页面是怎么搭起来的。">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235B7CA6'/%3E%3Ctext x='16' y='23' font-size='19' font-family='sans-serif' fill='%23fff' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
-<meta name="description" content="博客的第一篇文章：为什么要写、第一行代码，以及这个站是怎么搭起来的。">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -38,44 +38,44 @@
             <span>2026-10-04</span>
             <span>约 4 分钟阅读</span>
         </div>
-        <p class="post-lead">博客的第一篇文章：为什么要写、第一行代码，以及这个站是怎么搭起来的。</p>
+        <p class="post-lead">第一篇文章。说说为什么开这个站，以及它是怎么搭起来的。</p>
         <hr class="rule">
 
         <section class="post-section">
             <h2 id="why">为什么要写博客</h2>
-            <p>把日常开发里踩过的坑、验证过的方案写下来，是最省事的复习方式：写的时候逼自己把话说清楚，回头读的时候又能一眼想起当初为什么那样做。</p>
-            <p>所以这里的定位很明确——偏工程、可落地，少谈概念，多给能跑起来的代码。</p>
+            <p>主要是给自己看的。有些问题当时查了很久，过半年再翻代码，完全想不起来当初为什么那样写；先记下来，下次就不用再查一遍。</p>
+            <p>另外也想练练把话说清楚。技术上的事，能让别人看懂，一般说明自己也想明白了。</p>
         </section>
 
         <section class="post-section">
             <h2 id="first-code">第一行代码</h2>
-            <p>按惯例，第一个程序总要打印一句话。这篇《Hello World》本身，就是这个博客的第一行。</p>
+            <p>按惯例，第一个程序总要打印一句话。这篇就算这个博客的第一行。</p>
             <pre class="code"><code><span class="code-lang">csharp</span>Console.WriteLine("Hello, World!");</code></pre>
         </section>
 
         <section class="post-section">
-            <h2 id="how">这个站是怎么搭起来的</h2>
-            <p>结论先说：没有构建步骤。就是手写的 HTML 加一个 CSS，再配一点点 JavaScript，推到 GitHub 上就是网站了。</p>
+            <h2 id="how">这个站怎么搭的</h2>
+            <p>没什么技术含量：几个手写的 HTML，一个 CSS，再加一点 JavaScript。没有构建步骤，改完推上去就是线上。</p>
 
             <h3 id="stack">为什么不用框架</h3>
-            <p>个人博客最需要的其实是「十年后还能打开」：静态文件打开就能看，不需要装 SDK，不需要跑编译，也不会因为某个运行时升级而白屏。改内容就是改 HTML，加文章就是加文件。</p>
+            <p>之前试过别的方案，都不太顺：要么得先装 SDK，要么首屏要下十几兆的东西，打开前干等着。我要的其实很简单——双击文件能看，改一个字就能发。</p>
 
             <h3 id="deploy">怎么发布</h3>
-            <p>源码放在 GitHub 仓库里，推送到 <code>main</code> 分支后由 GitHub Actions 自动把 <code>site/</code> 目录发布到 GitHub Pages，不需要自己买服务器。</p>
+            <p>源码放在 GitHub，推到 main 之后由 Actions 把 site/ 目录发到 Pages，不用买服务器，也不用配环境。</p>
             <ul class="bullets">
-                <li>页面：每个栏目一个 HTML，全站共用一个 CSS。</li>
-                <li>目录：左侧目录由几行 JS 从正文的 h2 / h3 生成，写文章时不用管它。</li>
-                <li>清单：文章列表、分类、标签都从 <code>assets/posts.js</code> 里读，加一条就自动出现在各处。</li>
+                <li>页面：一个栏目一个 HTML，全站共用一个 CSS。</li>
+                <li>目录：左边那一栏是打开页面时从正文的 h2、h3 生成出来的，写文章时不用管它。</li>
+                <li>清单：标题、日期、分类、标签都记在 assets/posts.js，加一条就会出现在首页和各个列表里。</li>
             </ul>
         </section>
 
         <section class="post-section">
-            <h2 id="next">接下来写什么</h2>
-            <p>先把结构立住：顶栏分栏目，每页左侧一个两级目录，和参考的站保持一致。之后按主题慢慢补文章。</p>
+            <h2 id="next">后面写什么</h2>
+            <p>先把结构立住，之后想到什么写什么。大概会集中在这几块：</p>
             <ul class="bullets">
-                <li>桌面开发：WPF 与 Avalonia 的控件、样式和迁移。</li>
-                <li>跨平台：多端工程的拆分与共享代码的组织方式。</li>
-                <li>部署与性能：构建流水线、静态站点与体积优化。</li>
+                <li>桌面开发：控件的用法、样式，以及从 WPF 往 Avalonia 搬的过程。</li>
+                <li>跨平台：一套代码分几个端的时候，目录怎么摆比较省事。</li>
+                <li>杂项：构建、发布，还有一些没地方放的零碎。</li>
             </ul>
         </section>
 
