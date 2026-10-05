@@ -164,8 +164,8 @@
             var id = "course-" + c.slug;
             var files = c.files || [];
             var notes = c.notes || [];
-            /* notesHtml 是 notes.md 渲染好的 HTML（Markdown）；没有才退回 notes 的纯文本段落 */
-            var notesHtml = c.notesHtml || "";
+            /* noteList 是课程笔记（每篇一个独立页面）；没有笔记时才退回 notes 的纯文本段落 */
+            var noteList = c.noteList || [];
             var html = '<section class="group course">';
             html += '<h2 id="' + esc(id) + '" data-toc-text="' + esc(c.name) + '">' + esc(c.name) +
                 (c.term ? ' <span class="term">' + esc(c.term) + "</span>" : "") + "</h2>";
@@ -178,12 +178,18 @@
                 : '<p class="page-sub">资料还没整理上来，先空着。</p>';
 
             html += '<h3 id="' + esc(id) + '-notes" data-toc-text="感悟与笔记">感悟与笔记' +
-                (notesHtml || notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
-            html += notesHtml
-                ? notesHtml
-                : notes.length
-                    ? notes.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("")
-                    : '<p class="page-sub">还没写。</p>';
+                (noteList.length || notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
+            if (noteList.length) {
+                /* 只列笔记目录，正文在各自的页面里，课程页不铺开 */
+                html += '<ul class="note-index">' + noteList.map(function (n) {
+                    return '<li><a href="notes/' + esc(n.slug) + '.html">' + esc(n.title) + "</a>" +
+                        (n.draft ? ' <span class="todo-note">待补充</span>' : "") + "</li>";
+                }).join("") + "</ul>";
+            } else if (notes.length) {
+                html += notes.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("");
+            } else {
+                html += '<p class="page-sub">还没写。</p>';
+            }
 
             return html + "</section>";
         }).join("");

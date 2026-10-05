@@ -35,6 +35,7 @@ const SITE = path.join(ROOT, "site");
 const POSTS_SRC = path.join(SITE, "posts");
 const FILES_SRC = path.join(SITE, "files");
 const ASSETS = path.join(SITE, "assets");
+const NOTES_DIR = path.join(SITE, "notes");   // 课程笔记页面生成到这里
 const POSTS_JS = path.join(ASSETS, "posts.js");
 const COURSES_JS = path.join(ASSETS, "courses.js");
 
@@ -57,8 +58,14 @@ const NAV = [
     ["about.html", "关于"]
 ];
 
+/** 生成页面的标记（只删带这个标记的 html，手写的页面绝不碰） */
+const BANNER_MARK = "本页面由 tools/build-blog.mjs 从 ";
+
+/** 笔记页面放在 site/notes/ 里，所以它里面的相对路径都要退一级 */
+const NOTES_BASE = "../";
+
 /** 手写的页面，文章短名不能占用这些名字（否则会把页面覆盖掉） */
-const RESERVED_SLUGS = new Set(["index", "articles", "courses", "categories", "tags", "about", "404", "assets", "posts", "files"]);
+const RESERVED_SLUGS = new Set(["index", "articles", "courses", "categories", "tags", "about", "404", "assets", "posts", "files", "notes"]);
 
 /** 文章正文里用来切分 <section class="post-section"> 的哨兵，不会出现在正常文本里 */
 const CUT = "\u0000CUT\u0000";
@@ -97,7 +104,7 @@ const report = {
     stale: [],
     warnings: [],
     errors: [],
-    stats: { posts: 0, images: 0, courses: 0, files: 0 }
+    stats: { posts: 0, images: 0, courses: 0, files: 0, notes: 0 }
 };
 
 function warn(msg) {
@@ -422,6 +429,8 @@ function renderImage(alt, rawSrc, title, ctx, blockImage) {
     let url = src;
     let bytes = null;
     let dims = null;
+    // 页面不在站点根目录时（比如 site/notes/xxx.html），相对路径要多退一级
+    const base = ctx.base || "";
 
     if (!remote) {
         let decoded = src;
@@ -432,7 +441,7 @@ function renderImage(alt, rawSrc, title, ctx, blockImage) {
             bytes = stat.size;
             dims = imageDimensions(fs.readFileSync(abs), path.extname(abs).toLowerCase());
             if (abs.startsWith(SITE + path.sep)) {
-                url = path.relative(SITE, abs).split(path.sep).join("/");
+                url = base + path.relative(SITE, abs).split(path.sep).join("/");
             } else {
                 warn(ctx.label + " 图片 " + src + " 不在 site/ 目录里，页面可能读不到");
             }
@@ -442,7 +451,9 @@ function renderImage(alt, rawSrc, title, ctx, blockImage) {
             fail(ctx.label + " 图片不存在：" + src + "（按相对 " + relOf(ctx.dir) + "/ 找的）");
             // 报错的同时，把「这个文件本该放哪」写进 src，补上图片就能直接好
             const shouldBe = path.relative(SITE, abs).split(path.sep).join("/");
-            url = (shouldBe && !shouldBe.startsWith("..") && !path.isAbsolute(shouldBe)) ? shouldBe : src;
+            url = (shouldBe && !shouldBe.startsWith("..") && !path.isAbsolute(shouldBe))
+                ? base + shouldBe
+                : src;
         }
     }
 
@@ -494,7 +505,7 @@ function linkTarget(rawHref, ctx) {
         warn(ctx.label + " 链接 " + p + " 找不到对应的文章，按原样保留");
         return href;
     }
-    return slug + ".html" + hash;
+    return (ctx.base || "") + slug + ".html" + hash;
 }
 
 /**
@@ -892,7 +903,7 @@ function buildPost(found) {
         '    <link rel="stylesheet" href="assets/site.css">\n' +
         "</head>\n" +
         "<body>\n\n" +
-        '<!-- 本页面由 tools/build-blog.mjs 从 ' + relMd + " 生成，请改 md 后重新生成 -->\n" +
+        '<!-- ' + BANNER_MARK + relMd + " 生成，请改 md 后重新生成 -->\n" +
         pageHeader("articles.html") +
         '<div class="shell">\n' +
         '    <aside class="toc">\n' +
@@ -929,13 +940,14 @@ function indentHtml(html, spaces) {
     }).join("\n");
 }
 
-function pageHeader(current) {
+function pageHeader(current, base) {
+    base = base || "";
     const links = NAV.map(([href, text]) =>
-        '            <a href="' + href + '"' + (href === current ? ' aria-current="page"' : "") + ">" + text + "</a>"
+        '            <a href="' + base + href + '"' + (href === current ? ' aria-current="page"' : "") + ">" + text + "</a>"
     ).join("\n");
     return '<header class="topbar">\n' +
         '    <div class="topbar-inner">\n' +
-        '        <a class="brand" href="index.html"><img class="brand-mark" src="' + AVATAR_URL + '" alt="" referrerpolicy="no-referrer"><span>' + SITE_NAME + "</span></a>\n" +
+        '        <a class="brand" href="' + base + 'index.html"><img class="brand-mark" src="' + AVATAR_URL + '" alt="" referrerpolicy="no-referrer"><span>' + SITE_NAME + "</span></a>\n" +
         '        <nav class="topnav">\n' + links + "\n        </nav>\n" +
         "    </div>\n" +
         "</header>\n\n";
@@ -943,23 +955,23 @@ function pageHeader(current) {
 
 /**
  * 删掉「源 md 已经不存在」的旧页面：只认带生成标记的 html，手写的页面绝不碰。
- * 改了文章短名、删了文章之后，旧的 site/<短名>.html 就不会留在站点里了。
+ * 改了短名、删了源文件之后，旧页面（文章在 site/ 下、笔记在 site/notes/ 下）就不会留在站点里。
  */
-function cleanOrphanPages(slugs) {
-    const banner = "本页面由 tools/build-blog.mjs 从 ";
-    for (const name of fs.readdirSync(SITE)) {
+function cleanOrphanPages(dir, slugs, what) {
+    if (!fs.existsSync(dir)) { return; }
+    for (const name of fs.readdirSync(dir)) {
         if (!name.endsWith(".html")) { continue; }
         if (slugs.has(name.slice(0, -5))) { continue; }
-        const file = path.join(SITE, name);
+        const file = path.join(dir, name);
         let head = "";
         try { head = fs.readFileSync(file, "utf8").slice(0, 1000); } catch { continue; }
-        if (!head.includes(banner)) { continue; }
+        if (!head.includes(BANNER_MARK)) { continue; }
         if (OPT.check) {
-            report.stale.push(relOf(file) + "（源 md 已不存在，应该删掉）");
+            report.stale.push(relOf(file) + "（" + what + "的源文件已不存在，应该删掉）");
             continue;
         }
         fs.unlinkSync(file);
-        report.written.push(relOf(file) + "（删除：源 md 已不存在）");
+        report.written.push(relOf(file) + "（删除：" + what + "的源文件已不存在）");
     }
 }
 
@@ -1064,32 +1076,68 @@ function splitNoteTitle(md, fallback) {
     return { title: fallback, body: md };
 }
 
-/** 把若干篇笔记拼成「感悟与笔记」那块的内容：先列笔记目录，再一篇一篇铺开（单篇也一样，视觉统一） */
-function buildNotesHtml(blocks, slug) {
-    if (!blocks.length) { return ""; }
+/** 笔记页面的短名：<课程短名>-<笔记名>，保证站点里唯一 */
+function noteSlugFor(courseSlug, namePart, used) {
+    let base = String(namePart || "notes")
+        .replace(/\s+/g, "-")
+        .replace(/[\\/:*?"<>|#%]/g, "")
+        .replace(/^-+|-+$/g, "");
+    if (!base) { base = "notes"; }
+    let slug = courseSlug + "-" + base;
+    let n = 2;
+    while (used.has(slug)) { slug = courseSlug + "-" + base + "-" + n++; }
+    used.add(slug);
+    return slug;
+}
 
-    const items = blocks.map((b, i) => {
-        const id = "course-" + slug + "-note-" + (i + 1);
-        return '<article class="note note-item" id="' + esc(id) + '">' +
-            '<h3 class="note-title" id="' + esc(id) + '-title">' + esc(b.title || "笔记") +
-            (b.draft ? ' <span class="todo-note">待补充</span>' : "") + "</h3>" +
-            '<div class="note-body" data-no-toc>' +
-            (b.html || '<p class="page-sub">还没写。</p>') + "</div></article>";
-    });
+/** 每篇笔记一个独立页面：site/notes/<短名>.html */
+function buildNotePage(note) {
+    const base = NOTES_BASE;
+    const excerpt = truncate(firstParagraph(note.body), 90) || note.title;
+    const meta = '<div class="post-meta">' +
+        '<span class="chip">' + esc(note.courseName) + "</span>" +
+        (note.draft ? '<span class="chip chip-todo">待补充</span>' : "") +
+        "<span>" + esc(note.date) + "</span>" +
+        '<a href="' + base + "courses.html#course-" + esc(note.courseSlug) + '">← 回到课程</a></div>';
 
-    const index = '<ul class="note-index">' + blocks.map((b, i) =>
-        '<li><a href="#course-' + esc(slug) + "-note-" + (i + 1) + '">' + esc(b.title || "笔记") + "</a>" +
-        (b.draft ? ' <span class="todo-note">待补充</span>' : "") + "</li>"
-    ).join("") + "</ul>";
-
-    return index + items.join("\n");
+    return "<!DOCTYPE html>\n" +
+        '<html lang="zh-CN">\n' +
+        "<head>\n" +
+        '<meta charset="UTF-8">\n' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+        "<title>" + esc(note.title) + " · " + SITE_NAME + "</title>\n" +
+        '<meta name="description" content="' + esc(excerpt) + '">\n' +
+        ICON_LINKS +
+        '    <link rel="stylesheet" href="' + base + 'assets/site.css">\n' +
+        "</head>\n" +
+        "<body>\n\n" +
+        "<!-- " + BANNER_MARK + note.relMd + " 生成，请改 md 后重新生成 -->\n" +
+        pageHeader(null, base) +
+        '<div class="shell">\n' +
+        '    <aside class="toc">\n' +
+        '        <p class="toc-label">目录</p>\n' +
+        '        <p class="toc-page" id="toc-page">' + esc(note.title) + "</p>\n" +
+        '        <nav id="toc"></nav>\n' +
+        "    </aside>\n\n" +
+        '    <main class="content" id="content">\n\n' +
+        '        <h1 class="page-title">' + esc(note.title) + "</h1>\n" +
+        "        " + meta + "\n" +
+        '        <hr class="rule">\n\n' +
+        indentHtml(note.html || '<p class="page-sub">这篇还没写。</p>', 8) + "\n\n" +
+        '        <footer class="site-footer">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</footer>\n' +
+        "    </main>\n" +
+        "</div>\n\n" +
+        '<script src="' + base + 'assets/site.js"></script>\n' +
+        "</body>\n</html>\n";
 }
 
 function buildCourses() {
-    if (!fs.existsSync(FILES_SRC)) { return []; }
+    if (!fs.existsSync(FILES_SRC)) { return { courses: [], notePages: [] }; }
     const courses = [];
+    const notePages = [];
     const notesHeadingIds = new Set();
     const centralUsed = new Set();   // site/notes/ 里被用到的笔记文件
+    const noteSlugs = new Set();     // 已用掉的笔记页面短名
 
     const courseSlugs = fs.readdirSync(FILES_SRC, { withFileTypes: true })
         .filter((e) => e.isDirectory() && !e.name.startsWith("_") && !e.name.startsWith("."))
@@ -1110,36 +1158,46 @@ function buildCourses() {
             info("site/files/" + entry.name + "/ 里没有 course.json，课程名就用文件夹名「" + entry.name +
                 "」；想写学期、简介、感悟，就在这个文件夹里加一个 course.json");
         }
+        const courseName = String(meta.name || entry.name);
 
         const notes = (Array.isArray(meta.notes) ? meta.notes : meta.notes ? [meta.notes] : []).map((n) => String(n));
 
-        // 感悟与笔记：一个 md = 一篇笔记，可以放好多篇（位置见 collectNotes 的注释）。
+        // 感悟与笔记：一个 md = 一篇笔记，各自生成一个独立页面 site/notes/<短名>.html；
+        // 课程页上只列标题（点进去看正文），不在这里铺开，省得页面又长又乱。
         // 一篇笔记 md 都没有时，才退回 course.json 里的 notes 数组（纯文本，一段一个字符串）。
         const notesImages = new Set();
-        const noteBlocks = collectNotes(dir, entry.name, centralUsed)
-            .map((n) => {
-                // 笔记也是 md，允许像文章那样写 front matter：title 当笔记名，
-                // draft: true（或正文还空着）就标「待补充」，其余字段忽略
-                const fm = parseFrontMatter(readText(n.file), n.label + " ");
-                const fallback = typeof fm.data.title === "string" && fm.data.title.trim()
-                    ? fm.data.title.trim()
-                    : n.title;
-                const { title, body } = splitNoteTitle(fm.body, fallback);
-                return {
-                    title,
-                    draft: fm.data.draft === true || body.trim() === "",
-                    html: renderBlocks(body.split("\n"), {
-                        dir,
-                        label: n.label,
-                        headingIds: notesHeadingIds,   // 各课程共用，保证小标题锚点不撞车
-                        warnH1: false,                 // 笔记里用 # 当标题很正常，不用提醒
-                        images: notesImages            // 笔记引用到的图，之后从资料列表里剔掉
-                    }, false).trim()
-                };
-            });
-
-        const notesHtml = buildNotesHtml(noteBlocks, entry.name);
-        if (notesHtml && notes.length) {
+        const noteList = [];
+        for (const n of collectNotes(dir, entry.name, centralUsed)) {
+            // 笔记也是 md，允许像文章那样写 front matter：title 当笔记名，
+            // draft: true（或正文还空着）就标「待补充」，其余字段忽略
+            const fm = parseFrontMatter(readText(n.file), n.label + " ");
+            const fmTitle = typeof fm.data.title === "string" ? fm.data.title.trim() : "";
+            const { title, body } = splitNoteTitle(fm.body, fmTitle || n.title);
+            const stat = fs.statSync(n.file);
+            const date = String(fm.data.date || "").slice(0, 10) ||
+                new Date(stat.mtimeMs + new Date().getTimezoneOffset() * -60000).toISOString().slice(0, 10);
+            const note = {
+                slug: noteSlugFor(entry.name, n.title, noteSlugs),
+                title: title || "笔记",
+                draft: fm.data.draft === true || body.trim() === "",
+                date,
+                relMd: n.label,
+                courseSlug: entry.name,
+                courseName,
+                body,
+                html: renderBlocks(body.split("\n"), {
+                    dir: path.dirname(n.file),     // 笔记里的图片按它自己所在目录找
+                    label: n.label,
+                    headingIds: notesHeadingIds,   // 各课程共用，保证小标题锚点不撞车
+                    warnH1: false,                 // 笔记里用 # 当标题很正常，不用提醒
+                    images: notesImages,           // 笔记引用到的图，之后从资料列表里剔掉
+                    base: NOTES_BASE               // 笔记页面在 site/notes/ 下
+                }, false).trim()
+            };
+            notePages.push(note);
+            noteList.push({ title: note.title, slug: note.slug, draft: note.draft });
+        }
+        if (noteList.length && notes.length) {
             info("site/files/" + entry.name + "/ 既有笔记 md、course.json 里又有 notes，这次用 md 那份");
         }
 
@@ -1183,14 +1241,14 @@ function buildCourses() {
 
         courses.push({
             slug: entry.name,
-            name: String(meta.name || entry.name),
+            name: courseName,
             term: meta.term ? String(meta.term) : "",
             intro: meta.intro ? String(meta.intro) : "",
             order: Number.isFinite(Number(meta.order)) ? Number(meta.order) : 999,
             files: list,
             links,
             notes,
-            notesHtml
+            noteList
         });
         report.stats.files += list.length + links.length;
     }
@@ -1211,7 +1269,7 @@ function buildCourses() {
     }
 
     courses.sort((a, b) => a.order - b.order || naturalCompare(a.slug, b.slug));
-    return courses;
+    return { courses, notePages };
 }
 
 function buildCoursesJs(courses) {
@@ -1228,8 +1286,8 @@ function buildCoursesJs(courses) {
             ? "[\n" + items.map((f) => "            " + JSON.stringify(f)).join(",\n") + "\n        ]"
             : "[]";
         lines.push("        files: " + filesSrc + ",");
-        lines.push("        notes: " + JSON.stringify(c.notes) + (c.notesHtml ? "," : ""));
-        if (c.notesHtml) { lines.push("        notesHtml: " + JSON.stringify(c.notesHtml)); }
+        lines.push("        notes: " + JSON.stringify(c.notes) + (c.noteList.length ? "," : ""));
+        if (c.noteList.length) { lines.push("        noteList: " + JSON.stringify(c.noteList)); }
         lines.push("    }");
         return lines.join("\n");
     }).join(",\n");
@@ -1241,6 +1299,7 @@ function buildCoursesJs(courses) {
         "   课程名默认就是文件夹名；学期、简介、资料备注想写才写，放在 site/files/<slug>/course.json 里。\n" +
         "   感悟与笔记：一篇笔记一个 md，文件名 note_<课程>_<笔记名>.md，" +
         "放 site/files/<slug>/ 里或统一的 site/notes/ 里都行（笔记里引用的图片不算资料）。\n" +
+        "   每篇笔记会生成一个独立页面 site/notes/<短名>.html，这里只留笔记目录。\n" +
         "   也可以只用 site/files/<slug>/notes.md 一篇，或者 course.json 的 notes 数组（纯文本）。 */\n" +
         "window.COURSES = [\n" + (body || "") + "\n];\n";
 }
@@ -1253,7 +1312,7 @@ function build() {
     report.stale.length = 0;
     report.warnings.length = 0;
     report.errors.length = 0;
-    report.stats = { posts: 0, images: 0, courses: 0, files: 0 };
+    report.stats = { posts: 0, images: 0, courses: 0, files: 0, notes: 0 };
 
     console.log(OPT.check ? "检查生成结果是否最新…" : "开始生成博客…");
 
@@ -1287,19 +1346,26 @@ function build() {
         writeIfChanged(path.join(SITE, post.slug + ".html"), post.html);
     }
     report.stats.posts = posts.length;
-    cleanOrphanPages(new Set(posts.map((p) => p.slug)));
+    cleanOrphanPages(SITE, new Set(posts.map((p) => p.slug)), "文章");
     writeJs(POSTS_JS, buildPostsJs(posts));
 
-    /* ---- 课程资料 ---- */
-    const courses = buildCourses();
+    /* ---- 课程资料 + 课程笔记 ---- */
+    const { courses, notePages } = buildCourses();
     report.stats.courses = courses.length;
     writeJs(COURSES_JS, buildCoursesJs(courses));
+
+    for (const note of notePages) {
+        writeIfChanged(path.join(NOTES_DIR, note.slug + ".html"), buildNotePage(note));
+    }
+    report.stats.notes = notePages.length;
+    cleanOrphanPages(NOTES_DIR, new Set(notePages.map((n) => n.slug)), "笔记");
 
     /* ---- 报告 ---- */
     const ms = Date.now() - t0;
     console.log("");
-    console.log("文章 " + report.stats.posts + " 篇 · 图片 " + report.stats.images +
-        " 张 · 课程 " + report.stats.courses + " 门 · 资料 " + report.stats.files + " 项");
+    console.log("文章 " + report.stats.posts + " 篇 · 课程 " + report.stats.courses +
+        " 门（笔记 " + report.stats.notes + " 篇）· 资料 " + report.stats.files +
+        " 项 · 图片 " + report.stats.images + " 张");
 
     if (OPT.check) {
         if (report.stale.length) {
