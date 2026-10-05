@@ -91,9 +91,10 @@
         var html = '<h2 id="cat-all">全部分类</h2><p class="page-sub">共 ' + POSTS.length + " 篇文章，按分类归拢。</p>";
         html += groups.map(function (g) {
             return '<section class="group">' +
+                '<div class="indent-3">' +
                 '<h3 id="' + slugOf("cat", g.name) + '">' + esc(g.name) + "（" + g.posts.length + "）</h3>" +
                 '<div data-no-toc>' + cards(g.posts) + "</div>" +
-                "</section>";
+                "</div></section>";
         }).join("");
         root.innerHTML = html;
     }
@@ -108,9 +109,10 @@
         html += '<h2 id="tag-browse">按标签浏览</h2>';
         html += groups.map(function (g) {
             return '<section class="group">' +
+                '<div class="indent-3">' +
                 '<h3 id="' + slugOf("tag", g.name) + '">' + esc(g.name) + "（" + g.posts.length + "）</h3>" +
                 '<div data-no-toc>' + cards(g.posts) + "</div>" +
-                "</section>";
+                "</div></section>";
         }).join("");
         root.innerHTML = html;
     }
@@ -171,13 +173,17 @@
                 (c.term ? ' <span class="term">' + esc(c.term) + "</span>" : "") + "</h2>";
             if (c.intro) { html += "<p>" + esc(c.intro) + "</p>"; }
 
-            html += '<h3 id="' + esc(id) + '-files" data-toc-text="资料">资料' +
+            /* h3 和它下面的内容一起包进 .indent-3，跟正文里的层级缩进保持一致 */
+            html += '<div class="indent-3">' +
+                '<h3 id="' + esc(id) + '-files" data-toc-text="资料">资料' +
                 (files.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
             html += files.length
                 ? fileList(files)
                 : '<p class="page-sub">资料还没整理上来，先空着。</p>';
+            html += "</div>";
 
-            html += '<h3 id="' + esc(id) + '-notes" data-toc-text="感悟与笔记">感悟与笔记' +
+            html += '<div class="indent-3">' +
+                '<h3 id="' + esc(id) + '-notes" data-toc-text="感悟与笔记">感悟与笔记' +
                 (noteList.length || notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
             if (noteList.length) {
                 /* 只列笔记目录，正文在各自的页面里，课程页不铺开 */
@@ -190,6 +196,7 @@
             } else {
                 html += '<p class="page-sub">还没写。</p>';
             }
+            html += "</div>";
 
             return html + "</section>";
         }).join("");

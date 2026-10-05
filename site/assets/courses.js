@@ -14,7 +14,6 @@ window.COURSES = [
         name: "高等数学",
         term: "2025 秋-2026春",
         files: [
-            {"name":"image.png","file":"files/SM/image.png","size":"2 KB"},
             {"name":"高等数学 上册 第八版 (同济大学版).pdf","file":"files/SM/高等数学 上册 第八版 (同济大学版).pdf","size":"85.27 MB"},
             {"name":"高等数学 下册 第八版 (同济大学版).pdf","file":"files/SM/高等数学 下册 第八版 (同济大学版).pdf","size":"76.04 MB"}
         ],

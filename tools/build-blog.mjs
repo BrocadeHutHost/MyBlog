@@ -81,8 +81,8 @@ const NOTES_BASE = "../";
 /** 手写的页面，文章短名不能占用这些名字（否则会把页面覆盖掉） */
 const RESERVED_SLUGS = new Set(["index", "articles", "courses", "categories", "tags", "about", "404", "assets", "posts", "files", "notes"]);
 
-/** 文章正文里用来切分 <section class="post-section"> 的哨兵，不会出现在正常文本里 */
-const CUT = "\u0000CUT\u0000";
+/** 正文里每个小标题前面插的哨兵（带层级），最后据此把正文包成一层层缩进 */
+const headMark = (level) => "\u0000H" + level + "\u0000";
 
 const GEN_JS_BANNER =
     "/* ==========================================================================\n" +
@@ -687,7 +687,7 @@ function renderBlocks(lines, ctx, top) {
                 id = headingId(text, used);
             }
             const tag = "h" + level;
-            if (top && level === 2) { out += CUT; }
+            if (top) { out += headMark(level); }
             out += "<" + tag + ' id="' + esc(id) + '">' + inline(text, ctx) + "</" + tag + ">\n";
             i++;
             continue;
@@ -873,6 +873,36 @@ function discoverPosts() {
     return found;
 }
 
+/**
+ * 把带着层级哨兵的正文拼成最终 HTML：
+ *   h2 → 一个 <section class="post-section">
+ *   h3/h4/h5 → 各自把「它自己和它下面的正文」包进 .indent-N，一层层往里缩进
+ */
+function assembleBody(html) {
+    const parts = html.split(/\u0000H2\u0000/);
+    const intro = parts.shift();
+    const groups = intro.trim() ? [intro, ...parts] : parts;
+    return groups
+        .map((g) => '<section class="post-section">\n' + nestUnder(g).trim() + "\n</section>")
+        .join("\n\n");
+}
+
+function nestUnder(html) {
+    const parts = html.split(/\u0000H([3-6])\u0000/);   // 0 号是第一个小标题之前的内容
+    let out = parts[0];
+    const open = [];                                    // 当前打开的层级
+    for (let i = 1; i < parts.length; i += 2) {
+        const level = Number(parts[i]);
+        const chunk = parts[i + 1] || "";
+        while (open.length && open[open.length - 1] >= level) { out += "</div>"; open.pop(); }
+        out += '<div class="indent-' + level + '">';
+        open.push(level);
+        out += chunk;
+    }
+    while (open.length) { out += "</div>"; open.pop(); }
+    return out;
+}
+
 function buildPost(found) {
     const relMd = relOf(found.mdFile);
     const label = relMd;
@@ -930,14 +960,7 @@ function buildPost(found) {
         headingIds: new Set()
     };
 
-    const bodyHtml = renderBlocks(rest.split("\n"), ctx, true);
-    const chunks = bodyHtml.split(CUT);
-    let intro = chunks.shift().trim();
-    const sections = chunks.map((c) => '<section class="post-section">\n' + c.trim() + "\n</section>");
-
-    let content = "";
-    if (intro) { content += '<section class="post-section">\n' + intro + "\n</section>\n"; }
-    content += sections.join("\n\n");
+    const content = assembleBody(renderBlocks(rest.split("\n"), ctx, true));
 
     const chips = '<span class="chip">' + esc(category) + "</span>" +
         (draft ? '<span class="chip chip-todo">待补充</span>' : "");
@@ -1240,7 +1263,7 @@ function buildCourses() {
                 base: NOTES_BASE               // 笔记页面在 site/notes/ 下
             };
             // 注意：hasMath 是渲染过程中才会被置上的，所以必须先渲染再取
-            const noteHtml = renderBlocks(body.split("\n"), noteCtx, false).trim();
+            const noteHtml = assembleBody(renderBlocks(body.split("\n"), noteCtx, true));
             const note = {
                 slug: noteSlugFor(entry.name, n.title, noteSlugs),
                 title: title || "笔记",
