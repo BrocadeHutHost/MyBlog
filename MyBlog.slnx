@@ -1,5 +1,0 @@
-<Solution>
-  <!-- 新的 Avalonia 博客工程（独立 src/ 目录，不改动原 WPF 占位工程）-->
-  <Project Path="src/MyBlog/MyBlog.csproj" />
-  <Project Path="src/MyBlog.Browser/MyBlog.Browser.csproj" />
-</Solution>

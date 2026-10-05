@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>页面不存在 · Zoo 的技术随笔</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235B7CA6'/%3E%3Ctext x='16' y='23' font-size='19' font-family='sans-serif' fill='%23fff' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<!-- 404 会在任意路径下被访问，所以这个页面自带样式与链接修正，不依赖 assets 目录 -->
+<style>
+    :root { --text:#2B3440; --text-2:#5C6772; --muted:#94A0AE; --accent:#5B7CA6; --border:#E6E9EF; }
+    body { margin:0; background:#F4F6F9; color:var(--text); line-height:1.7;
+           font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif; }
+    .wrap { max-width:640px; margin:0 auto; padding:80px 24px; }
+    h1 { margin:0; font-size:64px; }
+    .sub { margin:8px 0 28px; color:var(--muted); font-size:14px; }
+    ul { margin:0; padding:0; list-style:none; }
+    li { position:relative; padding-left:16px; margin-bottom:6px; color:var(--text-2); font-size:14px; }
+    li::before { content:"·"; position:absolute; left:2px; color:var(--accent); font-weight:700; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { color:#4A6B92; }
+    .foot { margin-top:40px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>404</h1>
+    <p class="sub">这个地址没有对应的页面。</p>
+    <ul>
+        <li>回 <a href="#" data-root="">首页</a>，或者去 <a href="#" data-root="articles.html">文章</a> 列表里找。</li>
+        <li>如果是文章链接失效了，可能是文件名改过。</li>
+    </ul>
+    <p class="foot">© 2026 Zoo · 纯静态站点，托管于 GitHub Pages</p>
+</div>
+<script>
+    // 站点可能被部署在子路径下（https://<user>.github.io/<repo>/），
+    // 404 页面的地址又是未知的，所以按路径第一段算出站点根目录。
+    (function () {
+        var seg = location.pathname.split("/")[1];
+        var root = seg ? "/" + seg + "/" : "/";
+        document.querySelectorAll("[data-root]").forEach(function (a) {
+            a.setAttribute("href", root + a.getAttribute("data-root"));
+        });
+    })();
+</script>
+</body>
+</html>
