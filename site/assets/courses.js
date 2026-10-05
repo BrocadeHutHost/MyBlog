@@ -1,41 +1,20 @@
 /* ==========================================================================
-   课程资料清单
-   --------------------------------------------------------------------------
-   加一门课：在下面 COURSES 里加一条，然后把资料文件放进 site/files/<slug>/ 里。
-   每一条的结构：
-
-     {
-         slug: "ml",                       // 英文短名，也是 site/files/ 下的文件夹名
-         name: "机器学习",                  // 显示名，会成为页面上的一级标题
-         term: "2026 秋",                   // 学期（可省略）
-         intro: "一句话介绍这门课。",          // 可省略
-         files: [                          // 资料列表，空数组就显示「待补充」
-             { name: "第 1 讲 绪论.pptx", file: "files/ml/lecture01.pptx", size: "12 MB" },
-             { name: "往年题", url: "https://pan.baidu.com/s/xxxx", size: "120 MB", note: "网盘" }
-         ],
-         notes: [                          // 感悟 / 笔记，一段一个字符串
-             "第一段。",
-             "第二段。"
-         ]
-     }
-
-   files 里每一项：
-     name —— 显示的名字（不写就取文件名）
-     file —— 仓库里的相对路径（相对 site/），本地文件用这个，点一下直接下载
-     url  —— 外部链接（网盘等），大文件用这个，会新开标签页
-     size —— 显示的大小，可省略
-     note —— 备注，比如「考试重点」「选读」，可省略
-
-   ⚠ 单文件别超过 50 MB：GitHub 对超过 100 MB 的文件直接拒绝推送，50 MB 以上会警告，
-     而且 Pages 也不适合放大文件。超过 50 MB 的建议放网盘，用 url 字段链接过来。
+   ⚠ 这个文件由 tools/build-blog.mjs 自动生成，不要手改。
+   要改内容请动源文件，然后重新跑：node tools/build-blog.mjs
    ========================================================================== */
+
+/* 这门课的资料清单是扫 site/files/<slug>/ 自动生成的（文件名和大小都自动读），
+   课程名、学期、简介、感悟、资料备注写在 site/files/<slug>/course.json 里。 */
 window.COURSES = [
     {
-        slug: "ml",
-        name: "机器学习",
+        slug: "SS",
+        name: "语义通讯",
         term: "2026 秋",
         intro: "课程资料还在整理，先把位置占上。",
-        files: [],
+        files: [
+            {"name":"Semantic_Communication_Based_on_Large_Language_Model_for_Underwater_Image_Transmission.pdf","file":"files/SS/Semantic_Communication_Based_on_Large_Language_Model_for_Underwater_Image_Transmission.pdf","size":"2.75 MB"},
+            {"name":"语义引导的水下带噪语音通信(1).pdf","file":"files/SS/语义引导的水下带噪语音通信(1).pdf","size":"3.87 MB"}
+        ],
         notes: []
     }
 ];

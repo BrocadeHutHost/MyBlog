@@ -1,6 +1,9 @@
 # 列出 site\files\ 下的资料文件，按课程文件夹分组，
 # 输出能直接粘进 site\assets\courses.js 的 files 条目（含大小）。
 #
+# 注意：现在 site\assets\courses.js 由 tools\build-blog.mjs 自动生成（大小也是自动读的），
+# 这个脚本只是留着手动看一眼文件大小，平时用不上。
+#
 # 用法（在仓库根目录）：
 #   powershell -File tools\scan-files.ps1
 # 指定别的目录：

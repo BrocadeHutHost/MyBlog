@@ -23,6 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: 检查生成物是不是最新的（忘了跑生成脚本会在这里失败）
+        run: node tools/build-blog.mjs --check
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

@@ -46,11 +46,18 @@
             <h2 id="about-site">关于本站</h2>
 
             <h3 id="make">制作方法</h3>
-            <p>写的静态页面，每篇文章是一个 HTML 文件，文章清单在 assets/posts.js，左侧目录由脚本从正文标题生成。</p>
-            <p>课程资料在 assets/courses.js 里登记，文件放在 files/ 目录下。</p>
+            <p>文章用 Markdown 写，放在 <code>site/posts/&lt;短名&gt;/index.md</code>；图片跟 md 放在一起，
+                正文里用相对路径引用，图片的尺寸、大小和图注由脚本自己读。</p>
+            <p>跑一遍 <code>node tools/build-blog.mjs</code> 生成文章页面和文章清单
+                （<code>site/assets/posts.js</code>）；课程资料放在 <code>site/files/&lt;课程&gt;/</code>，
+                文件名和体积由脚本扫进 <code>site/assets/courses.js</code>，课程名和感悟写在同目录的
+                <code>course.json</code> 里。左侧目录由脚本从正文标题生成。</p>
 
             <h3 id="log">更新日志</h3>
             <ul class="bullets">
+                <li>2026-10-05：文章改成用 Markdown 写，加生成脚本 <code>tools/build-blog.mjs</code>，
+                    图片尺寸、资料大小自动读，不再手写 HTML 和清单。</li>
+                <li>2026-10-04：改用纯静态 HTML + CSS + JS 重写，去掉 WebAssembly 版本。</li>
             </ul>
         </section>
 

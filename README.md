@@ -1,16 +1,10 @@
 # MyBlog
 
-一个纯静态的个人博客：手写 HTML + 一个 CSS + 一点点 JavaScript，**没有构建步骤**，
+一个纯静态的个人博客：**Markdown 写文章** + 一个零依赖的生成脚本 + 手写的页面外壳，
 推送到 `main` 分支就自动发布到 GitHub Pages。
 
 - 仓库：<https://github.com/BrocadeHutHost/MyBlog>
 - 线上地址：<https://brocadehuthost.github.io/MyBlog/>
-
-站点的层级关系参考 [archaeus13.github.io](https://archaeus13.github.io/index.html)：
-
-- **顶部导航栏**：6 个并列栏目，切换栏目 = 换页面；
-- **左侧目录**：两级（目录 → 小节），点击跳到本页对应位置，滚动时高亮当前小节；
-- **正文小节**：正文的 `h2` 是目录一级，`h3` 是二级，**目录由脚本自动生成**，不用手工维护。
 
 ## 栏目
 
@@ -23,52 +17,63 @@
 | 标签 | `site/tags.html` | 标签云 + 按标签分组 | 标签云、按标签浏览（→ 每个标签） |
 | 关于 | `site/about.html` | 作者与站点说明 | 关于作者（作者简介 / 联系作者）、关于本站（使用指南 / 制作方法 / 更新日志） |
 
-第一篇文章是 **《Hello World》**（`site/hello-world.html`，清单里的第一条）。
+第一篇文章是 **《Hello World》**：源文件 `site/posts/hello-world/index.md`，
+生成的页面是 `site/hello-world.html`。
 
-## 目录结构
+## 写一篇文章
 
-```
-site/                     ← 整个网站就是这一个目录，GitHub Pages 发布的就是它
-  index.html              首页
-  articles.html           文章（归档）
-  courses.html            课程（资料 + 笔记）
-  categories.html         分类
-  tags.html               标签
-  about.html              关于
-  hello-world.html        第一篇文章（每篇文章一个 HTML 文件）
-  404.html                找不到页面时的兜底页
-  files/                  课程资料文件（按课程 slug 分文件夹，比如 files/ml/）
-  assets/
-    site.css              全站样式（配色、顶栏、左侧目录、卡片、代码块、资料清单）
-    site.js               渲染文章列表 / 课程资料 + 生成左侧目录 + 当前小节高亮
-    posts.js              ★ 文章清单，加文章只改这里 + 新增一个 HTML
-    courses.js            ★ 课程清单，加课程/资料只改这里
-tools/scan-files.ps1      列一遍 files/ 下的文件并算出大小，输出可直接粘进 courses.js
-.github/workflows/deploy.yml   推送到 main 后发布 site/ 到 Pages
-```
+1. 建文件夹 `site/posts/<短名>/`——`<短名>` 就是 URL（例如 `wpf-to-avalonia`）；
+2. 里面写一个 `index.md`，开头一段 front matter 写标题、日期这些：
 
-## 加一篇文章
+```markdown
+---
+title: 从 WPF 迁移到 Avalonia 的样式与控件映射
+date: 2026-10-06
+category: 桌面开发
+tags: [WPF, Avalonia]
+excerpt: 一句话摘要，显示在卡片上；不写就自动取正文第一段。
+lead: 标题下面那句引言，可以不写。
+# minutes: 9      # 不写就按正文字数自动算
+# draft: true     # 还没写完，列表里会显示「待补充」
+---
 
-1. 复制 `site/hello-world.html`，改名成新文章的 `slug`（例如 `site/wpf-to-avalonia.html`），把正文换成你的内容：
-   - 标题用 `<h1 class="page-title">`；
-   - 每个小节用 `<h2 id="...">`，子小节用 `<h3 id="...">`——`id` 就是左侧目录的锚点，**目录会自动出现**；
-   - 代码块用 `<pre class="code"><code>…</code></pre>`。
-2. 在 `site/assets/posts.js` 里加一条记录，`slug` 要和文件名一致（不带 `.html`）：
+## 第一个小节
 
-```js
-{
-    slug: "wpf-to-avalonia",
-    title: "从 WPF 迁移到 Avalonia 的样式与控件映射",
-    date: "2026-10-06",
-    category: "桌面开发",
-    tags: ["WPF", "Avalonia"],
-    excerpt: "一句话摘要，显示在卡片上。",
-    minutes: 9,
-    draft: false        // true 会显示「待补充」标记（对应参考站的 To Be Done）
-}
+正文写在这里。`##` 是左侧目录的一级，`###` 是二级，锚点自动生成，
+也能自己指定：`## 小节名 {#custom-id}`。
 ```
 
-首页的「最新文章」、文章页的归档、分类页、标签页都会自动更新。
+3. 跑一遍生成：
+
+```powershell
+node tools/build-blog.mjs
+```
+
+它会生成 `site/<短名>.html`，并重写文章清单 `site/assets/posts.js`。
+首页的「最新文章」、文章页的归档、分类页、标签页都跟着自动更新。
+
+`site/posts/_template/` 里有一份可以直接照抄的模板（`_` 开头的文件夹不会被生成）。
+
+## 图片
+
+图片跟 `index.md` 放在同一个文件夹里，正文用**相对路径**引用：
+
+```markdown
+![图片说明](cover.png)
+```
+
+生成时脚本会读图片的真实像素尺寸和文件大小，输出成 `<figure>` + `<figcaption>`：
+`width`/`height` 让浏览器在图片加载前就留好位置（正文不会跳），图注自动是
+「文件名 · 大小 · 尺寸」。**尺寸和图注都不用自己写**，图片放在哪就引用哪，不用搬家。
+
+## 支持的 Markdown 写法
+
+小标题（`##`/`###`/`####`）、段落、**粗体**、*斜体*、`行内代码`、~~删除线~~、
+有序 / 无序（可嵌套）列表、引用、围栏代码块（标了语言就显示语言名）、GFM 表格、
+分隔线、链接、图片、行内 HTML 直接透传。
+
+链接指向站内另一篇 md（比如 `hello-world.md`）时，生成时自动换成生成后的地址，
+不用管页面文件名。
 
 ## 课程资料（PPT / PDF / Word / 压缩包）
 
@@ -78,65 +83,101 @@ tools/scan-files.ps1      列一遍 files/ 下的文件并算出大小，输出�
 **加一门课：**
 
 1. 在 `site/files/` 下建一个以课程短名命名的文件夹，比如 `site/files/ml/`，把文件丢进去
-   （文件名建议用英文或拼音，不要有空格）；
-2. 在 `site/assets/courses.js` 里的 `COURSES` 数组加一条：
+   （文件名建议用英文或拼音，不要有空格；子文件夹也会被递归扫到）；
+2. 同目录放一个 `course.json`，写课程名 / 学期 / 简介 / 感悟 / 资料备注：
 
-```js
+```json
 {
-    slug: "ml",                     // 和 site/files/ 下的文件夹名一致
-    name: "机器学习",                // 显示名，会成为页面和左侧目录的一级标题
-    term: "2026 秋",                // 学期，可省略
-    intro: "一句话介绍这门课。",      // 可省略
-    files: [
-        { name: "第 1 讲 绪论.pptx", file: "files/ml/lecture01.pptx", size: "12 MB" },
-        { name: "第 1 讲 作业", file: "files/ml/hw01.pdf", size: "800 KB", note: "必做" },
-        { name: "往年题合集", url: "https://pan.baidu.com/s/xxxx", size: "120 MB", note: "网盘" }
+    "name": "机器学习",
+    "term": "2026 秋",
+    "intro": "一句话介绍这门课。",
+    "fileNotes": { "hw01.pdf": "必做", "lecture01.pptx": "考试重点" },
+    "links": [
+        { "name": "往年题合集", "url": "https://pan.baidu.com/s/xxxx", "size": "120 MB", "note": "网盘" }
     ],
-    notes: [
+    "notes": [
         "感悟写在这里，一段一个字符串。"
     ]
 }
 ```
 
-`files` 里每一项：
+3. 跑一遍 `node tools/build-blog.mjs`。
 
-| 字段 | 说明 |
-| --- | --- |
-| `name` | 显示的名字，不写就取文件名 |
-| `file` | 仓库里的相对路径（相对 `site/`），本地文件用这个，点一下直接下载 |
-| `url` | 外部链接（网盘等），大文件用这个，会新开标签页 |
-| `size` | 显示的大小，可省略 |
-| `note` | 备注，比如「考试重点」「选读」，可省略 |
+**文件名和大小都是脚本自己读的**：它会递归扫 `site/files/<课程>/`，把每个文件的
+名字、体积（`12.5 MB` 这种）写进 `site/assets/courses.js`，所以不用再手算、
+手敲资料清单。`course.json`、`.gitkeep` 这类文件会被跳过；`links` 里的外部链接
+（网盘等）原样带过去。
 
-`files` 写成空数组 `[]`、`notes` 写成 `[]`，页面上会显示「待补充」，不会有死链。
+`files` 一项都没有、`notes` 是空数组时，页面上会显示「待补充」，不会有死链。
 
 **文件大小要注意：** GitHub 对**超过 100 MB 的单个文件直接拒绝推送**，50 MB 以上会警告；
 GitHub Pages 也不适合放大文件（站点总体积也有限制）。所以单个文件尽量压在 50 MB 以内，
-更大的（录屏、几百 MB 的压缩包）放网盘，用 `url` 字段链接过来。另外**不要用 Git LFS**——
+更大的（录屏、几百 MB 的压缩包）放网盘，用 `links` 字段链接过来。生成脚本会把超标的文件
+直接点出来（超过 50 MB 警告，超过 100 MB 直接算错误）。另外**不要用 Git LFS**——
 Pages 不会解析 LFS，下载到的是指针文件而不是真文件。
 
-**懒得手算大小：** 在仓库根目录跑
+> 早先的 `tools/scan-files.ps1` 只干「列一遍文件大小」这件事，现在用不上了，
+> 留着当参考。
 
-```powershell
-powershell -File tools\scan-files.ps1
+## 目录结构
+
+```
+site/                     ← 整个网站就是这一个目录，GitHub Pages 发布的就是它
+  index.html              首页（手写）
+  articles.html           文章（归档）
+  courses.html            课程（资料 + 笔记）
+  categories.html         分类
+  tags.html               标签
+  about.html              关于
+  404.html                找不到页面时的兜底页
+  <短名>.html             ★ 每篇文章（由 md 生成，不要手改）
+  posts/                  ★ 文章源文件：posts/<短名>/index.md，图片就放它旁边
+    _template/index.md    新文章模板（_ 开头，不参与生成）
+  files/                  课程资料（files/<课程>/ + course.json）
+  assets/
+    site.css              全站样式（配色、顶栏、左侧目录、卡片、代码块、图片、表格）
+    site.js               渲染文章列表 / 课程资料 + 生成左侧目录 + 当前小节高亮（手写）
+    posts.js              ★ 文章清单（生成物，不要手改）
+    courses.js            ★ 课程资料清单（生成物，不要手改）
+tools/
+  build-blog.mjs          ★ 生成脚本：md → 页面 + 清单，顺手读图片尺寸和文件大小
+  scan-files.ps1          旧的小工具：列一遍 files/ 下的文件大小
+.github/workflows/deploy.yml   推送到 main 后发布 site/ 到 Pages
 ```
 
-它会把 `site\files\` 下的文件按课程文件夹列出来，直接输出成能粘进 `courses.js` 的条目（含大小），
-并单独提醒哪些超过 50 MB。
+带 ★ 的文件都是**自动生成**的：改 `site/posts/` 或 `site/files/` 里的源文件，然后重新跑脚本。
+
+## 生成命令
+
+需要 **Node 18+**（没有任何 npm 依赖，不用 `npm install`）：
+
+```powershell
+node tools/build-blog.mjs            # 生成一次
+node tools/build-blog.mjs --watch    # 改 md / 课程资料就自动重新生成
+node tools/build-blog.mjs --serve    # 顺手起本地服务器（默认 8080，用 --port 换）
+node tools/build-blog.mjs --check    # 只检查产物是不是最新的（CI 用，落后就退出码 1）
+```
+
+脚本会打印每次生成了哪些文件，以及所有警告 / 错误：比如图片路径写错、front matter
+里有看不懂的行、文件超过 100 MB，都会直接点出来。有错误时退出码是 1。
 
 ## 本地预览
 
-直接用浏览器打开 `site/index.html` 也行（全站都是相对路径）；
-想更接近线上，用任意静态服务器：
+```powershell
+node tools/build-blog.mjs --watch --serve
+# 然后打开 http://127.0.0.1:8080/
+```
+
+也可以直接用浏览器打开 `site/index.html`（全站都是相对路径），或者用任意静态服务器：
 
 ```powershell
 python -m http.server 8080 --directory site
-# 然后打开 http://localhost:8080/
 ```
 
 ## 部署
 
-推送到 `main` 即可，工作流会把 `site/` 目录作为 Pages 产物发布：
+推送到 `main` 即可，工作流会先跑一次 `node tools/build-blog.mjs --check` 确认生成物是最新的，
+然后把 `site/` 目录作为 Pages 产物发布：
 
 ```powershell
 git add -A
@@ -148,7 +189,8 @@ git push
 仓库的 **Settings → Pages → Build and deployment → Source** 需要是 **GitHub Actions**（已配好）。
 
 > 站点部署在 `/MyBlog/` 这个子路径下，所以全站链接都用**相对路径**（`assets/site.css`、`articles.html`），
-> 不要写成 `/assets/...` 这样的绝对路径，否则子路径下会 404。
+> 不要写成 `/assets/...` 这样的绝对路径，否则子路径下会 404。生成脚本会把
+> md 里的绝对路径图片直接报成错误。
 
 ## 关于旧版本
 
