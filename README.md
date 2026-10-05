@@ -87,6 +87,35 @@ node tools/build-blog.mjs
 链接指向站内另一篇 md（比如 `hello-world.md`）时，生成时自动换成生成后的地址，
 不用管页面文件名。
 
+## 数学公式（LaTeX）
+
+文章和课程笔记里都能直接写公式，用 **KaTeX** 排版（自托管在 `site/assets/katex/`，MIT 协议，
+**只有含公式的页面**才会引入它的 css/js，没公式的页面一个字节都不多下）。
+
+| 写法 | 效果 |
+| --- | --- |
+| `$E = mc^2$` 或 `\(E = mc^2\)` | 行内公式 |
+| `$$…$$` 或 `\[…\]` | 独立成行的公式，可以跨多行 |
+
+```markdown
+行内：$a_i^2 * b_j^2$ 和 $\frac{a}{b}$
+
+$$
+\begin{aligned}
+(a+b)^2 &= a^2 + 2ab + b^2 \\
+(a-b)^2 &= a^2 - 2ab + b^2
+\end{aligned}
+$$
+```
+
+- 公式里的 `_` `*` `\` 都是 LaTeX 语法，生成器会先把公式整段抠出来，不会被 Markdown 当成强调或转义；
+- **代码块里的 LaTeX 不排版**（比如 ```` ```latex ```` 的代码块），就是原样显示源码；
+- 关掉 JS 或者公式写错时不会白屏：会保留原始 LaTeX 文本；
+- 单独的 `$` 不受影响（比如「5$ 一件」）。
+- 想升级 KaTeX：把 `site/assets/katex/` 整个目录换成新版本的
+  `dist/katex.min.css`、`dist/katex.min.js`、`dist/contrib/auto-render.min.js` 和 `dist/fonts/*.woff2`
+  （只带 woff2 就够，浏览器优先用它）。
+
 ## 课程资料（PPT / PDF / Word / 压缩包）
 
 一门课在「课程」页上是一节，里面分「资料」和「感悟与笔记」两块。左侧目录会自动列出

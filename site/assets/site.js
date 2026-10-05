@@ -273,6 +273,22 @@
     renderViews();
     buildToc();
 
+    /* 页面里有公式时，生成器会引入 KaTeX；这里把 \(…\) 和 \[…\] 排成真正的公式。
+       没引入（页面里没公式）或加载失败时，就保留原始 LaTeX 文本，不影响阅读。 */
+    if (window.renderMathInElement) {
+        try {
+            window.renderMathInElement(document.getElementById("content") || document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "\\(", right: "\\)", display: false },
+                    { left: "\\[", right: "\\]", display: true }
+                ],
+                ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option"],
+                throwOnError: false
+            });
+        } catch (e) { /* 排版失败就算了，公式源码还在 */ }
+    }
+
     var ticking = false;
     window.addEventListener("scroll", function () {
         if (ticking) { return; }

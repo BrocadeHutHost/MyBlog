@@ -49,6 +49,20 @@ const ICON_LINKS =
     '    <link rel="icon" href="' + AVATAR_URL + '">\n' +
     '    <link rel="apple-touch-icon" href="' + AVATAR_URL + '">\n';
 
+/** 数学公式用自托管的 KaTeX（site/assets/katex/），只有页面里真有公式时才引入 */
+const KATEX_CSS = "assets/katex/katex.min.css";
+const KATEX_SCRIPTS = ["assets/katex/katex.min.js", "assets/katex/auto-render.min.js"];
+
+function katexCssTag(base) {
+    return '    <link rel="stylesheet" href="' + (base || "") + KATEX_CSS + '">\n';
+}
+
+function katexScriptTags(base) {
+    return KATEX_SCRIPTS
+        .map((f) => '<script src="' + (base || "") + f + '"></script>')
+        .join("\n") + "\n";
+}
+
 const NAV = [
     ["index.html", "首页"],
     ["articles.html", "文章"],
@@ -370,6 +384,23 @@ function inline(text, ctx, blockImage) {
 
     let s = String(text);
 
+    // 0. 数学公式先抠出来：里面的 _ * \ 都是 LaTeX 语法，不能被 Markdown 当成强调/转义吃掉。
+    //    $$…$$ 和 \[…\] 是独立公式，$…$ 和 \(…\) 是行内公式；
+    //    这里只把公式包成 span，真正排版交给页面里的 KaTeX。
+    const mathToken = (tex, display) => {
+        ctx.hasMath = true;
+        const body = esc(String(tex).trim());
+        return display
+            ? stash('<span class="math-block">\\[' + body + '\\]</span>')
+            : stash('<span class="math">\\(' + body + '\\)</span>');
+    };
+    s = s.replace(/\$\$([\s\S]+?)\$\$/g, (m, tex) => mathToken(tex, true));
+    s = s.replace(/\\\[([\s\S]+?)\\\]/g, (m, tex) => mathToken(tex, true));
+    // 行内 $…$：前面不能是数字/美元符号、后面不能紧跟数字，
+    // 免得「价格 $5 和 $10」这种被当成公式（这是各家 Markdown 的常见约定）
+    s = s.replace(/(^|[^\d$])\$([^\s$][^$\n]*?)\$(?!\d)/g, (m, pre, tex) => pre + mathToken(tex, false));
+    s = s.replace(/\\\(([\s\S]+?)\\\)/g, (m, tex) => mathToken(tex, false));
+
     // 1. 原样透传的 HTML 标签 / 注释
     s = s.replace(/<!--[\s\S]*?-->/g, (m) => stash(m));
     s = s.replace(/<\/?[A-Za-z][\w:-]*(?:"[^"]*"|'[^']*'|[^>"'])*\/?>/g, (m) => stash(m));
@@ -612,6 +643,26 @@ function renderBlocks(lines, ctx, top) {
             out += '<pre class="code"><code>' +
                 (lang ? '<span class="code-lang">' + esc(lang) + "</span>" : "") +
                 esc(body.join("\n")) + "</code></pre>\n";
+            continue;
+        }
+
+        // ---- 独立公式：$$…$$ 或 \[…\]（可以跨行）----
+        const mathOpen = /^\s*(\$\$|\\\[)[ \t]*(.*)$/.exec(line);
+        if (mathOpen) {
+            const closer = mathOpen[1] === "$$" ? "$$" : "\\]";
+            let tex = mathOpen[2];
+            let closed = tex.includes(closer);
+            if (closed) { tex = tex.slice(0, tex.indexOf(closer)); }
+            i++;
+            while (!closed && i < lines.length) {
+                const at = lines[i].indexOf(closer);
+                if (at >= 0) { tex += "\n" + lines[i].slice(0, at); closed = true; i++; break; }
+                tex += "\n" + lines[i];
+                i++;
+            }
+            if (!closed) { warn(ctx.label + " 有个公式没找到收尾的 " + closer); }
+            ctx.hasMath = true;
+            out += '<div class="math-block">\\[' + esc(tex.trim()) + "\\]</div>\n";
             continue;
         }
 
@@ -901,6 +952,7 @@ function buildPost(found) {
         '<meta name="description" content="' + esc(excerpt) + '">\n' +
         ICON_LINKS +
         '    <link rel="stylesheet" href="assets/site.css">\n' +
+        (ctx.hasMath ? katexCssTag("") : "") +
         "</head>\n" +
         "<body>\n\n" +
         '<!-- ' + BANNER_MARK + relMd + " 生成，请改 md 后重新生成 -->\n" +
@@ -922,6 +974,7 @@ function buildPost(found) {
         "    </main>\n" +
         "</div>\n\n" +
         '<script src="assets/posts.js"></script>\n' +
+        (ctx.hasMath ? katexScriptTags("") : "") +
         '<script src="assets/site.js"></script>\n' +
         "</body>\n</html>\n";
 
@@ -1109,6 +1162,7 @@ function buildNotePage(note) {
         '<meta name="description" content="' + esc(excerpt) + '">\n' +
         ICON_LINKS +
         '    <link rel="stylesheet" href="' + base + 'assets/site.css">\n' +
+        (note.hasMath ? katexCssTag(base) : "") +
         "</head>\n" +
         "<body>\n\n" +
         "<!-- " + BANNER_MARK + note.relMd + " 生成，请改 md 后重新生成 -->\n" +
@@ -1127,6 +1181,7 @@ function buildNotePage(note) {
         '        <footer class="site-footer">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</footer>\n' +
         "    </main>\n" +
         "</div>\n\n" +
+        (note.hasMath ? katexScriptTags(base) : "") +
         '<script src="' + base + 'assets/site.js"></script>\n' +
         "</body>\n</html>\n";
 }
@@ -1176,6 +1231,14 @@ function buildCourses() {
             const stat = fs.statSync(n.file);
             const date = String(fm.data.date || "").slice(0, 10) ||
                 new Date(stat.mtimeMs + new Date().getTimezoneOffset() * -60000).toISOString().slice(0, 10);
+            const noteCtx = {
+                dir: path.dirname(n.file),     // 笔记里的图片按它自己所在目录找
+                label: n.label,
+                headingIds: notesHeadingIds,   // 各课程共用，保证小标题锚点不撞车
+                warnH1: false,                 // 笔记里用 # 当标题很正常，不用提醒
+                images: notesImages,           // 笔记引用到的图，之后从资料列表里剔掉
+                base: NOTES_BASE               // 笔记页面在 site/notes/ 下
+            };
             const note = {
                 slug: noteSlugFor(entry.name, n.title, noteSlugs),
                 title: title || "笔记",
@@ -1185,14 +1248,8 @@ function buildCourses() {
                 courseSlug: entry.name,
                 courseName,
                 body,
-                html: renderBlocks(body.split("\n"), {
-                    dir: path.dirname(n.file),     // 笔记里的图片按它自己所在目录找
-                    label: n.label,
-                    headingIds: notesHeadingIds,   // 各课程共用，保证小标题锚点不撞车
-                    warnH1: false,                 // 笔记里用 # 当标题很正常，不用提醒
-                    images: notesImages,           // 笔记引用到的图，之后从资料列表里剔掉
-                    base: NOTES_BASE               // 笔记页面在 site/notes/ 下
-                }, false).trim()
+                hasMath: noteCtx.hasMath === true,
+                html: renderBlocks(body.split("\n"), noteCtx, false).trim()
             };
             notePages.push(note);
             noteList.push({ title: note.title, slug: note.slug, draft: note.draft });

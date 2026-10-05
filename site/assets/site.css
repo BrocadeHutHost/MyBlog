@@ -385,6 +385,10 @@ ul.files li.file-row::before { content: none; }
 .note-index a { color: var(--text); }
 .note-index a:hover { color: var(--accent); }
 
+/* ===== 数学公式（KaTeX，只有含公式的页面才引入它的 css/js） ===== */
+.math-block { display: block; margin: 12px 0; overflow-x: auto; overflow-y: hidden; }
+.katex { font-size: 1.05em; }
+
 @media (max-width: 520px) {
     ul.files li.file-row { flex-wrap: wrap; gap: 6px; }
     .file-name { flex: 1 1 100%; order: 2; }
