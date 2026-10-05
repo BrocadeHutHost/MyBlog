@@ -1,4 +1,4 @@
-﻿---
+---
 title: 用 Markdown 写博客：用于我备忘
 date: 2026-10-05
 category: 随笔
@@ -83,7 +83,7 @@ console.log(posts.length + " 个文件夹");
 
 链接写法照旧，指向别的 md 时脚本会自动换成生成后的地址：
 
-- [回到 Hello World](hello-world.md)
+- [理工小助手发布](东莞理工小助手发布/index.md)
 - [GitHub 仓库](https://github.com/BrocadeHutHost/MyBlog)
 
 ## 生成命令

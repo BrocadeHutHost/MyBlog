@@ -822,7 +822,10 @@ function buildPost(found) {
     let slug = String(data.slug || found.folder || path.basename(found.mdFile, path.extname(found.mdFile)))
         .trim().replace(/\s+/g, "-");
     if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug)) {
-        fail(label + " slug「" + slug + "」不是 ASCII（生成的 URL 会很难看），建议用英文短名");
+        // 中文短名照样能用（浏览器会把文件名转成 %E4%B8%9C… 这样的编码），
+        // 只是分享出去的链接会长得难看，所以只提示、不拦。
+        warn(label + " slug「" + slug + "」不是 ASCII，页面正常生成，URL 会是 " +
+            encodeURIComponent(slug) + ".html；想好看点就在 front matter 里写 slug: 英文短名");
     }
     if (/[\\/]/.test(slug) || slug.includes("..") || RESERVED_SLUGS.has(slug)) {
         fail(label + " slug「" + slug + "」会覆盖站点上的其它文件，这篇先跳过（换个文件夹名或写 slug:）");

@@ -8,7 +8,7 @@
 window.POSTS = [
     {
         slug: "markdown-guide",
-        title: "用 Markdown 写博客：这里支持哪些写法",
+        title: "用 Markdown 写博客：用于我备忘",
         date: "2026-10-05",
         category: "随笔",
         tags: ["Markdown","写作"],
@@ -17,13 +17,13 @@ window.POSTS = [
         draft: false
     },
     {
-        slug: "hello-world",
-        title: "Hello World",
-        date: "2026-10-04",
+        slug: "东莞理工小助手发布",
+        title: "理工小助手多功能聚合脚本",
+        date: "2026-09-27",
         category: "随笔",
-        tags: ["入门","博客"],
-        excerpt: "博客的第一篇文章：为什么要写、第一行代码，以及这个站是怎么搭起来的。",
-        minutes: 1,
+        tags: ["脚本","博客"],
+        excerpt: "介绍为什么开发，脚本功能和下载页",
+        minutes: 2,
         draft: false
     }
 ];

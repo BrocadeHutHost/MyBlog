@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理工小助手多功能聚合脚本 · 锦 的博客</title>
+<meta name="description" content="介绍为什么开发，脚本功能和下载页">
+    <link rel="icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
+    <link rel="apple-touch-icon" href="https://avatars.githubusercontent.com/BrocadeHutHost?s=256">
+    <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<!-- 本页面由 tools/build-blog.mjs 从 site/posts/东莞理工小助手发布/index.md 生成，请改 md 后重新生成 -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html"><img class="brand-mark" src="https://avatars.githubusercontent.com/BrocadeHutHost?s=256" alt="" referrerpolicy="no-referrer"><span>锦 的博客</span></a>
+        <nav class="topnav">
+            <a href="index.html">首页</a>
+            <a href="articles.html" aria-current="page">文章</a>
+            <a href="courses.html">课程</a>
+            <a href="categories.html">分类</a>
+            <a href="tags.html">标签</a>
+            <a href="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
+<div class="shell">
+    <aside class="toc">
+        <p class="toc-label">目录</p>
+        <p class="toc-page" id="toc-page">理工小助手多功能聚合脚本</p>
+        <nav id="toc"></nav>
+    </aside>
+
+    <main class="content" id="content">
+
+        <h1 class="page-title">理工小助手多功能聚合脚本</h1>
+        <div class="post-meta"><span class="chip">随笔</span><span>2026-09-27</span><span>约 2 分钟阅读</span></div>
+        <hr class="rule">
+
+        <section class="post-section">
+        <p>这学期把手上散装的各种优学院脚本整理了一遍，融合成一个聚合脚本——「理工小助手」，这里也作为发布页讲讲为啥要写这个脚本</p>
+        <p>项目地址：<a href="https://github.com/BrocadeHutHost/DGUT-ULearningTakeQuizzesAssistant" target="_blank" rel="noopener">BrocadeHutHost/DGUT-ULearningTakeQuizzesAssistant</a></p>
+        </section>
+        <section class="post-section">
+        <h2 id="为什么写这个脚本">为什么写这个脚本</h2>
+        <p>签到、刷课、互评汇总、读书计时，这些功能原本大多由不同的作者各自发布。但是，要管理多个脚本和维护实在是太不方便，于是自己动手写了个融合版。</p>
+        </section>
+
+        <section class="post-section">
+        <h2 id="它能做什么">它能做什么</h2>
+        <h3 id="学习功能">学习功能</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th>模块</th><th>功能</th></tr></thead>
+        <tbody>
+        <tr><td>课程签到</td><td>读取课程列表，按间隔轮询当日课堂活动，发现签到自动提交</td></tr>
+        <tr><td>刷课助手</td><td>视频 1~16 倍速播放、倍速守卫、自动答题、自动翻页、题库收集与导出</td></tr>
+        <tr><td>作业互评</td><td>读取互评数据、还原评价人身份、汇总记录并筛选</td></tr>
+        <tr><td>求是读书</td><td>按书目累计阅读时长，满 4 小时 10 分自动翻页、切书</td></tr>
+        </tbody>
+        </table></div>
+        <h3 id="本地工具箱">本地工具箱</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th>工具</th><th>功能</th></tr></thead>
+        <tbody>
+        <tr><td>文档工具</td><td>Markdown 转 Word / PDF，支持实时预览、草稿自动保存</td></tr>
+        <tr><td>Word 转 PDF</td><td>本地解析 .docx，导出 PDF / .doc（复杂排版还原度有限，持续优化中）</td></tr>
+        <tr><td>图片工具</td><td>缩放、压缩到指定大小、增大文件、锐化、黑白、亮度均匀</td></tr>
+        <tr><td>手绘电子签名</td><td>画板上手写（鼠标 / 触屏 / 触控笔），导出时以透明 PNG 附在文档末尾</td></tr>
+        </tbody>
+        </table></div>
+        </section>
+
+        <section class="post-section">
+        <h2 id="隐私">隐私</h2>
+        <p>文档内容、图片、签名全部本地处理</p>
+        </section>
+
+        <section class="post-section">
+        <h2 id="下载与安装">下载与安装</h2>
+        <ol>
+        <li>给浏览器装一个用户脚本管理器（Tampermonkey 等主流产品均可）；</li>
+        <li>在管理器里新建脚本，把<a href="https://github.com/BrocadeHutHost/DGUT-ULearningTakeQuizzesAssistant" target="_blank" rel="noopener">仓库</a>里的主脚本完整代码粘贴进去；</li>
+        <li>保存并保持启用；</li>
+        <li>打开任意网页，右下角会出现悬浮球，点开就是面板。</li>
+        </ol>
+        <p>想要主题皮肤的话，再去仓库下载 <code>小助手UI主题美化扩展-纳西妲主题.js</code>，按相同步骤装上即可（前提：主脚本已装好并启用）。首次使用文档相关功能需要联网加载依赖库，之后有缓存。</p>
+        </section>
+
+        <section class="post-section">
+        <h2 id="最后">最后</h2>
+        <p>脚本以 <strong>AGPL-3.0-only</strong> 协议开源，仅供学习交流与自动化测试使用，请勿用于商业或违规用途，完整声明见仓库。觉得有用的话去点个 star 呗 ( •̀ ω •́ )y，遇到 BUG 或想提功能欢迎开 issue</p>
+        </section>
+
+        <footer class="site-footer">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</footer>
+    </main>
+</div>
+
+<script src="assets/posts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
