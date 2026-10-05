@@ -8,7 +8,7 @@
 
 站点的层级关系参考 [archaeus13.github.io](https://archaeus13.github.io/index.html)：
 
-- **顶部导航栏**：5 个并列栏目，切换栏目 = 换页面；
+- **顶部导航栏**：6 个并列栏目，切换栏目 = 换页面；
 - **左侧目录**：两级（目录 → 小节），点击跳到本页对应位置，滚动时高亮当前小节；
 - **正文小节**：正文的 `h2` 是目录一级，`h3` 是二级，**目录由脚本自动生成**，不用手工维护。
 
@@ -18,6 +18,7 @@
 | --- | --- | --- | --- |
 | 首页 | `site/index.html` | 站点介绍 + 最新文章 | 最新文章（→ 每篇）、关于本站（→ 本站做什么 / 怎么读） |
 | 文章 | `site/articles.html` | 按年份归档的全部文章 | 年份（→ 该年每一篇）、归档说明 |
+| 课程 | `site/courses.html` | 按课程放的资料（PPT / PDF / Word / 压缩包）+ 感悟笔记 | 课程名（→ 资料 / 感悟与笔记） |
 | 分类 | `site/categories.html` | 按分类分组的文章 | 全部分类（→ 每个分类） |
 | 标签 | `site/tags.html` | 标签云 + 按标签分组 | 标签云、按标签浏览（→ 每个标签） |
 | 关于 | `site/about.html` | 作者与站点说明 | 关于作者（作者简介 / 联系作者）、关于本站（使用指南 / 制作方法 / 更新日志） |
@@ -30,15 +31,19 @@
 site/                     ← 整个网站就是这一个目录，GitHub Pages 发布的就是它
   index.html              首页
   articles.html           文章（归档）
+  courses.html            课程（资料 + 笔记）
   categories.html         分类
   tags.html               标签
   about.html              关于
   hello-world.html        第一篇文章（每篇文章一个 HTML 文件）
   404.html                找不到页面时的兜底页
+  files/                  课程资料文件（按课程 slug 分文件夹，比如 files/ml/）
   assets/
-    site.css              全站样式（配色、顶栏、左侧目录、卡片、代码块）
-    site.js               渲染文章列表 + 生成左侧目录 + 当前小节高亮
+    site.css              全站样式（配色、顶栏、左侧目录、卡片、代码块、资料清单）
+    site.js               渲染文章列表 / 课程资料 + 生成左侧目录 + 当前小节高亮
     posts.js              ★ 文章清单，加文章只改这里 + 新增一个 HTML
+    courses.js            ★ 课程清单，加课程/资料只改这里
+tools/scan-files.ps1      列一遍 files/ 下的文件并算出大小，输出可直接粘进 courses.js
 .github/workflows/deploy.yml   推送到 main 后发布 site/ 到 Pages
 ```
 
@@ -64,6 +69,60 @@ site/                     ← 整个网站就是这一个目录，GitHub Pages �
 ```
 
 首页的「最新文章」、文章页的归档、分类页、标签页都会自动更新。
+
+## 课程资料（PPT / PDF / Word / 压缩包）
+
+一门课在「课程」页上是一节，里面分「资料」和「感悟与笔记」两块。左侧目录会自动列出
+「课程名 → 资料 / 感悟与笔记」，不用手工维护。
+
+**加一门课：**
+
+1. 在 `site/files/` 下建一个以课程短名命名的文件夹，比如 `site/files/ml/`，把文件丢进去
+   （文件名建议用英文或拼音，不要有空格）；
+2. 在 `site/assets/courses.js` 里的 `COURSES` 数组加一条：
+
+```js
+{
+    slug: "ml",                     // 和 site/files/ 下的文件夹名一致
+    name: "机器学习",                // 显示名，会成为页面和左侧目录的一级标题
+    term: "2026 秋",                // 学期，可省略
+    intro: "一句话介绍这门课。",      // 可省略
+    files: [
+        { name: "第 1 讲 绪论.pptx", file: "files/ml/lecture01.pptx", size: "12 MB" },
+        { name: "第 1 讲 作业", file: "files/ml/hw01.pdf", size: "800 KB", note: "必做" },
+        { name: "往年题合集", url: "https://pan.baidu.com/s/xxxx", size: "120 MB", note: "网盘" }
+    ],
+    notes: [
+        "感悟写在这里，一段一个字符串。"
+    ]
+}
+```
+
+`files` 里每一项：
+
+| 字段 | 说明 |
+| --- | --- |
+| `name` | 显示的名字，不写就取文件名 |
+| `file` | 仓库里的相对路径（相对 `site/`），本地文件用这个，点一下直接下载 |
+| `url` | 外部链接（网盘等），大文件用这个，会新开标签页 |
+| `size` | 显示的大小，可省略 |
+| `note` | 备注，比如「考试重点」「选读」，可省略 |
+
+`files` 写成空数组 `[]`、`notes` 写成 `[]`，页面上会显示「待补充」，不会有死链。
+
+**文件大小要注意：** GitHub 对**超过 100 MB 的单个文件直接拒绝推送**，50 MB 以上会警告；
+GitHub Pages 也不适合放大文件（站点总体积也有限制）。所以单个文件尽量压在 50 MB 以内，
+更大的（录屏、几百 MB 的压缩包）放网盘，用 `url` 字段链接过来。另外**不要用 Git LFS**——
+Pages 不会解析 LFS，下载到的是指针文件而不是真文件。
+
+**懒得手算大小：** 在仓库根目录跑
+
+```powershell
+powershell -File tools\scan-files.ps1
+```
+
+它会把 `site\files\` 下的文件按课程文件夹列出来，直接输出成能粘进 `courses.js` 的条目（含大小），
+并单独提醒哪些超过 50 MB。
 
 ## 本地预览
 
