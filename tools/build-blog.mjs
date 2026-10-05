@@ -280,7 +280,12 @@ function parseFrontMatter(text, label) {
             continue;
         }
         key = kv[1];
-        const value = kv[2].trim();
+        let value = kv[2].trim();
+        // 去掉行尾注释：draft: true   # 还没写完 → true（引号里的 # 不算）
+        if (!/^["']/.test(value)) {
+            const hash = value.search(/\s#/);
+            if (hash >= 0) { value = value.slice(0, hash).trim(); }
+        }
         if (value === "") { data[key] = ""; }
         else if (/^\[.*\]$/.test(value)) {
             data[key] = value.slice(1, -1).split(",").map((s) => scalarOf(s)).filter((s) => s !== "");
@@ -1059,24 +1064,23 @@ function splitNoteTitle(md, fallback) {
     return { title: fallback, body: md };
 }
 
-/** 把若干篇笔记拼成「感悟与笔记」那块的内容：多篇时先给一个笔记列表 */
+/** 把若干篇笔记拼成「感悟与笔记」那块的内容：先列笔记目录，再一篇一篇铺开（单篇也一样，视觉统一） */
 function buildNotesHtml(blocks, slug) {
     if (!blocks.length) { return ""; }
-    // 只有一篇、又没标题（老的单个 notes.md）→ 直接铺开，不套卡片
-    if (blocks.length === 1 && !blocks[0].title) { return blocks[0].html; }
 
     const items = blocks.map((b, i) => {
         const id = "course-" + slug + "-note-" + (i + 1);
         return '<article class="note note-item" id="' + esc(id) + '">' +
-            (b.title ? '<h3 class="note-title" id="' + esc(id) + '-title">' + esc(b.title) + "</h3>" : "") +
-            '<div class="note-body" data-no-toc>' + b.html + "</div></article>";
+            '<h3 class="note-title" id="' + esc(id) + '-title">' + esc(b.title || "笔记") +
+            (b.draft ? ' <span class="todo-note">待补充</span>' : "") + "</h3>" +
+            '<div class="note-body" data-no-toc>' +
+            (b.html || '<p class="page-sub">还没写。</p>') + "</div></article>";
     });
 
-    const index = blocks.length > 1
-        ? '<ul class="note-index">' + blocks.map((b, i) =>
-            '<li><a href="#course-' + esc(slug) + "-note-" + (i + 1) + '">' + esc(b.title || "笔记") + "</a></li>"
-        ).join("") + "</ul>"
-        : "";
+    const index = '<ul class="note-index">' + blocks.map((b, i) =>
+        '<li><a href="#course-' + esc(slug) + "-note-" + (i + 1) + '">' + esc(b.title || "笔记") + "</a>" +
+        (b.draft ? ' <span class="todo-note">待补充</span>' : "") + "</li>"
+    ).join("") + "</ul>";
 
     return index + items.join("\n");
 }
@@ -1114,7 +1118,8 @@ function buildCourses() {
         const notesImages = new Set();
         const noteBlocks = collectNotes(dir, entry.name, centralUsed)
             .map((n) => {
-                // 笔记也是 md，允许像文章那样写 front matter：title 优先当笔记名，其余字段忽略
+                // 笔记也是 md，允许像文章那样写 front matter：title 当笔记名，
+                // draft: true（或正文还空着）就标「待补充」，其余字段忽略
                 const fm = parseFrontMatter(readText(n.file), n.label + " ");
                 const fallback = typeof fm.data.title === "string" && fm.data.title.trim()
                     ? fm.data.title.trim()
@@ -1122,6 +1127,7 @@ function buildCourses() {
                 const { title, body } = splitNoteTitle(fm.body, fallback);
                 return {
                     title,
+                    draft: fm.data.draft === true || body.trim() === "",
                     html: renderBlocks(body.split("\n"), {
                         dir,
                         label: n.label,
@@ -1130,8 +1136,7 @@ function buildCourses() {
                         images: notesImages            // 笔记引用到的图，之后从资料列表里剔掉
                     }, false).trim()
                 };
-            })
-            .filter((n) => n.title || n.html);
+            });
 
         const notesHtml = buildNotesHtml(noteBlocks, entry.name);
         if (notesHtml && notes.length) {
