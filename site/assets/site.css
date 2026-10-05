@@ -402,6 +402,26 @@ ul.files li.file-row::before { content: none; }
 .math-block { display: block; margin: 12px 0; overflow-x: auto; overflow-y: hidden; }
 .katex { font-size: 1.05em; }
 
+/* ===== 按标题折叠正文（site.js 加上去的；禁用 JS 时不会折叠） ===== */
+.fold-head {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+.fold-head::before {
+    content: "▾";
+    position: absolute;
+    left: -16px;
+    top: 0;
+    width: 16px;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 400;
+}
+.fold-head:hover::before { color: var(--accent); }
+.fold-head.collapsed::before { content: "▸"; }
+.fold-hidden { display: none !important; }
+
 @media (max-width: 520px) {
     ul.files li.file-row { flex-wrap: wrap; gap: 6px; }
     .file-name { flex: 1 1 100%; order: 2; }

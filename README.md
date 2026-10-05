@@ -91,6 +91,16 @@ node tools/build-blog.mjs
 链接指向站内另一篇 md（比如 `hello-world.md`）时，生成时自动换成生成后的地址，
 不用管页面文件名。
 
+## 折叠正文
+
+每个小标题都能点：点一下把它下面的正文折起来，再点展开（标题左边的小三角 `▾` / `▸` 跟着变）。
+从左侧目录跳到某个被折叠的小节时，沿途的小节会**自动展开**。
+
+- **默认是全部展开的**，折叠完全由 `site/assets/site.js` 在浏览器里加，禁用 JS 时页面照旧完整可读；
+- 想改成「默认全收起、只看得到标题」：把 `site/assets/site.js` 里的
+  `var FOLD_OPEN_BY_DEFAULT = true;` 改成 `false` 就行；
+- 折叠只是把内容藏起来（`display:none`），HTML 里一直都在，点开或关掉 JS 就能看到；
+
 ## 数学公式（LaTeX）
 
 文章和课程笔记里都能直接写公式，用 **KaTeX** 排版（自托管在 `site/assets/katex/`，MIT 协议，

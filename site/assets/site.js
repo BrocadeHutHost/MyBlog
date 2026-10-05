@@ -270,7 +270,8 @@
         var active = tocLinks[0];
         tocLinks.forEach(function (item) {
             var el = document.getElementById(item.id);
-            if (el && el.getBoundingClientRect().top <= line) { active = item; }
+            /* 折叠起来的小节不参与高亮（display:none 时 boundingRect 全是 0） */
+            if (el && el.getClientRects().length && el.getBoundingClientRect().top <= line) { active = item; }
         });
         tocLinks.forEach(function (item) {
             item.el.classList.toggle("active", item === active);
@@ -295,6 +296,76 @@
             });
         } catch (e) { /* 排版失败就算了，公式源码还在 */ }
     }
+
+    /* ==========================================================================
+       按标题展开 / 收起正文：点标题就把它下面的内容折起来（再点展开）。
+       折叠是靠给内容加 .fold-hidden 实现的，所以：
+         · 禁用 JS 时什么都不会折叠，页面照常完整可读；
+         · 从左侧目录跳到被折叠的小节时，会自动把沿途展开。
+       ========================================================================== */
+    var FOLD_OPEN_BY_DEFAULT = true;   // 想默认全部收起（只看到标题），把它改成 false
+
+    var folds = [];
+
+    function headingLevel(el) { return Number(el.tagName.charAt(1)); }
+
+    function setFold(entry, open) {
+        entry.open = open;
+        entry.nodes.forEach(function (n) { n.classList.toggle("fold-hidden", !open); });
+        entry.head.classList.toggle("collapsed", !open);
+        entry.head.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function setupFolds() {
+        var heads = [].slice.call(document.querySelectorAll("#content h2[id], #content h3[id], #content h4[id]"))
+            .filter(function (h) { return !h.closest("[data-no-toc]"); });
+
+        heads.forEach(function (h) {
+            var level = headingLevel(h);
+            var nodes = [];
+            var el = h.nextElementSibling;
+            while (el) {
+                /* 遇到同级或更高级的标题就停：那已经不属于这个小节了 */
+                if (/^H[2-6]$/.test(el.tagName) && headingLevel(el) <= level) { break; }
+                nodes.push(el);
+                el = el.nextElementSibling;
+            }
+            if (!nodes.length) { return; }        // 底下没内容的标题不折
+
+            var entry = { head: h, nodes: nodes, open: FOLD_OPEN_BY_DEFAULT };
+            folds.push(entry);
+            h.classList.add("fold-head");
+            h.setAttribute("tabindex", "0");
+            setFold(entry, FOLD_OPEN_BY_DEFAULT);
+
+            h.addEventListener("click", function () { setFold(entry, !entry.open); });
+            h.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                    e.preventDefault();
+                    setFold(entry, !entry.open);
+                }
+            });
+        });
+    }
+
+    /* 跳到某个锚点（目录链接）时，把它所在的折叠小节逐层展开 */
+    function revealFromHash() {
+        var id = location.hash ? decodeURIComponent(location.hash.slice(1)) : "";
+        if (!id) { return; }
+        var el = document.getElementById(id);
+        if (!el) { return; }
+        /* 从目标一路往上找：只要某一层被折叠藏着，就把那一层展开 */
+        while (el && el !== document.body) {
+            folds.forEach(function (f) {
+                if (f.head === el || f.nodes.indexOf(el) >= 0) { setFold(f, true); }
+            });
+            el = el.parentElement;
+        }
+    }
+
+    setupFolds();
+    revealFromHash();
+    window.addEventListener("hashchange", revealFromHash);
 
     var ticking = false;
     window.addEventListener("scroll", function () {
