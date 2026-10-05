@@ -279,6 +279,14 @@ figure.fig figcaption {
 
 h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
 
+/* 正文里的标题按层级缩进（和左侧目录的层级对应），层级一眼看清 */
+.content h2 { margin-left: 0; }
+.content h3 { margin-left: 16px; }
+.content h4 { margin-left: 32px; }
+.content h5, .content h6 { margin-left: 48px; }
+/* 文章卡片里的标题也是 h3，但它不算正文小标题，保持不缩进 */
+.content .card-title { margin-left: 0; }
+
 .todo-note {
     display: inline-block;
     margin-left: 8px;
