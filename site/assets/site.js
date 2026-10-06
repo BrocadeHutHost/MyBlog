@@ -1,10 +1,3 @@
-/* ==========================================================================
-   站点脚本：只干三件事
-     1. 按页面上的 data-view 渲染内容（文章卡片 / 课程资料）
-     2. 从正文的小标题自动生成左侧两级目录
-     3. 滚动时高亮目录里当前的小节
-   页面导航、正文、页脚都是写死在 HTML 里的，禁用 JS 也能读。
-   ========================================================================== */
 (function () {
     "use strict";
 
@@ -18,8 +11,6 @@
             return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
         });
     }
-
-    /* 中文分类/标签名生成稳定的 ASCII 锚点（同名永远同一个 id） */
     function slugOf(prefix, name) {
         var h = 5381;
         for (var i = 0; i < name.length; i++) {
@@ -27,8 +18,6 @@
         }
         return prefix + "-" + h.toString(36);
     }
-
-    /* ---------------- 文章 ---------------- */
 
     function card(p) {
         var chips = '<span class="chip">' + esc(p.category) + "</span>";
@@ -117,8 +106,6 @@
         root.innerHTML = html;
     }
 
-    /* ---------------- 课程资料 ---------------- */
-
     function fileType(name) {
         var ext = String(name || "").split(".").pop().toLowerCase();
         if (ext === "ppt" || ext === "pptx") { return "PPT"; }
@@ -166,14 +153,11 @@
             var id = "course-" + c.slug;
             var files = c.files || [];
             var notes = c.notes || [];
-            /* noteList 是课程笔记（每篇一个独立页面）；没有笔记时才退回 notes 的纯文本段落 */
             var noteList = c.noteList || [];
             var html = '<section class="group course">';
             html += '<h2 id="' + esc(id) + '" data-toc-text="' + esc(c.name) + '">' + esc(c.name) +
                 (c.term ? ' <span class="term">' + esc(c.term) + "</span>" : "") + "</h2>";
             if (c.intro) { html += "<p>" + esc(c.intro) + "</p>"; }
-
-            /* h3 和它下面的内容一起包进 .indent-3，跟正文里的层级缩进保持一致 */
             html += '<div class="indent-3">' +
                 '<h3 id="' + esc(id) + '-files" data-toc-text="资料">资料' +
                 (files.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
@@ -186,7 +170,6 @@
                 '<h3 id="' + esc(id) + '-notes" data-toc-text="感悟与笔记">感悟与笔记' +
                 (noteList.length || notes.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
             if (noteList.length) {
-                /* 只列笔记目录，正文在各自的页面里，课程页不铺开 */
                 html += '<ul class="note-index">' + noteList.map(function (n) {
                     return '<li><a href="notes/' + esc(n.slug) + '.html">' + esc(n.title) + "</a>" +
                         (n.draft ? ' <span class="todo-note">待补充</span>' : "") + "</li>";
@@ -215,8 +198,6 @@
             if (fn) { fn(root); }
         });
     }
-
-    /* ---- 左侧目录：正文里的 h2 = 一级，h3 = 二级 ---- */
 
     var tocLinks = [];
 
@@ -270,7 +251,6 @@
         var active = tocLinks[0];
         tocLinks.forEach(function (item) {
             var el = document.getElementById(item.id);
-            /* 折叠起来的小节不参与高亮（display:none 时 boundingRect 全是 0） */
             if (el && el.getClientRects().length && el.getBoundingClientRect().top <= line) { active = item; }
         });
         tocLinks.forEach(function (item) {
@@ -280,9 +260,6 @@
 
     renderViews();
     buildToc();
-
-    /* 页面里有公式时，生成器会引入 KaTeX；这里把 \(…\) 和 \[…\] 排成真正的公式。
-       没引入（页面里没公式）或加载失败时，就保留原始 LaTeX 文本，不影响阅读。 */
     if (window.renderMathInElement) {
         try {
             window.renderMathInElement(document.getElementById("content") || document.body, {
@@ -294,16 +271,9 @@
                 ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option"],
                 throwOnError: false
             });
-        } catch (e) { /* 排版失败就算了，公式源码还在 */ }
+        } catch (e) {  }
     }
-
-    /* ==========================================================================
-       按标题展开 / 收起正文：点标题就把它下面的内容折起来（再点展开）。
-       折叠是靠给内容加 .fold-hidden 实现的，所以：
-         · 禁用 JS 时什么都不会折叠，页面照常完整可读；
-         · 从左侧目录跳到被折叠的小节时，会自动把沿途展开。
-       ========================================================================== */
-    var FOLD_OPEN_BY_DEFAULT = true;   // 想默认全部收起（只看到标题），把它改成 false
+    var FOLD_OPEN_BY_DEFAULT = true;  
 
     var folds = [];
 
@@ -325,12 +295,11 @@
             var nodes = [];
             var el = h.nextElementSibling;
             while (el) {
-                /* 遇到同级或更高级的标题就停：那已经不属于这个小节了 */
                 if (/^H[2-6]$/.test(el.tagName) && headingLevel(el) <= level) { break; }
                 nodes.push(el);
                 el = el.nextElementSibling;
             }
-            if (!nodes.length) { return; }        // 底下没内容的标题不折
+            if (!nodes.length) { return; }        
 
             var entry = { head: h, nodes: nodes, open: FOLD_OPEN_BY_DEFAULT };
             folds.push(entry);
@@ -348,13 +317,11 @@
         });
     }
 
-    /* 跳到某个锚点（目录链接）时，把它所在的折叠小节逐层展开 */
     function revealFromHash() {
         var id = location.hash ? decodeURIComponent(location.hash.slice(1)) : "";
         if (!id) { return; }
         var el = document.getElementById(id);
         if (!el) { return; }
-        /* 从目标一路往上找：只要某一层被折叠藏着，就把那一层展开 */
         while (el && el !== document.body) {
             folds.forEach(function (f) {
                 if (f.head === el || f.nodes.indexOf(el) >= 0) { setFold(f, true); }

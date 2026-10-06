@@ -1,7 +1,3 @@
-/* ==========================================================================
-   锦 的博客 —— 全站样式
-   层级：顶栏（并列栏目） + 左侧目录（两级） + 右侧正文
-   ========================================================================== */
 
 :root {
     --page-bg: #F4F6F9;
@@ -39,7 +35,6 @@ a:hover { color: var(--accent-hover); }
 
 h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 
-/* ===== 顶栏：5 个并列栏目 ===== */
 .topbar {
     position: sticky;
     top: 0;
@@ -66,8 +61,7 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
     display: block;
     width: 24px; height: 24px; border-radius: 50%;
     object-fit: cover;
-    /* 头像图来自 GitHub，加载出来之前先显示这块底色 */
-    background: linear-gradient(135deg, #7E9CBF, #5B7CA6);
+    background: linear-gradient(135deg, #fdfeff, #020c18);
 }
 
 .topnav { display: flex; align-items: center; gap: 4px; }
@@ -79,8 +73,6 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 }
 .topnav a:hover { color: var(--accent); }
 .topnav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
-
-/* ===== 主体：左目录 + 右内容 ===== */
 .shell {
     max-width: 1180px;
     margin: 0 auto;
@@ -118,8 +110,6 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 .toc-link:hover, .toc-sublink:hover { background: var(--accent-soft); color: var(--accent); }
 .toc-sublink { margin-left: 12px; padding: 4px 8px; font-size: 12.5px; color: var(--text-2); }
 .toc-link.active, .toc-sublink.active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
-
-/* ===== 正文 ===== */
 .content { padding: 28px 32px 0; max-width: 920px; }
 
 .page-title { margin: 0; font-size: 26px; font-weight: 700; line-height: 1.4; }
@@ -135,7 +125,6 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
     display: block;
     width: 150px; height: 150px; border-radius: 50%;
     object-fit: cover;
-    /* 头像图来自 GitHub，加载出来之前先显示这个大圆底色 */
     background: linear-gradient(135deg, #7E9CBF, #5B7CA6);
 }
 
@@ -148,8 +137,6 @@ p { margin: 0 0 10px; color: var(--text-2); font-size: 13.5px; }
 ul.bullets { margin: 4px 0 12px; padding: 0; list-style: none; }
 ul.bullets li { position: relative; padding-left: 16px; margin-bottom: 4px; color: var(--text-2); font-size: 13.5px; }
 ul.bullets li::before { content: "·"; position: absolute; left: 2px; color: var(--accent); font-weight: 700; }
-
-/* ===== 文章卡片 ===== */
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 16px; }
 .cards.single { grid-template-columns: minmax(0, 1fr); }
 
@@ -194,8 +181,6 @@ ul.bullets li::before { content: "·"; position: absolute; left: 2px; color: var
 .tag-chip .count { opacity: .7; margin-left: 4px; font-size: 11px; }
 
 .group { margin-top: 34px; }
-
-/* ===== 文章正文 ===== */
 .post-meta { display: flex; align-items: center; gap: 10px; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
 .post-lead { margin: 16px 0 0; color: var(--text-2); font-size: 13.5px; }
 hr.rule { margin: 20px 0 24px; border: 0; border-top: 1px solid var(--border); }
@@ -218,12 +203,8 @@ pre.code code {
     color: var(--text);
 }
 .code-lang { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-family: inherit; }
-
-/* ===== Markdown 生成的正文元素（tools/build-blog.mjs 的输出） ===== */
 strong { font-weight: 600; color: var(--text); }
 del { color: var(--muted); }
-
-/* 行内代码；代码块里的 code 不要这套底色和边框 */
 code {
     padding: 1px 5px;
     border-radius: 3px;
@@ -255,8 +236,6 @@ th { background: var(--code-bg); color: var(--text); font-weight: 600; }
 tbody tr:nth-child(even) { background: #FAFBFD; }
 th.c, td.c { text-align: center; }
 th.r, td.r { text-align: right; }
-
-/* 图片：生成器把真实像素尺寸写进了 width/height，这里保证窄屏也不溢出、加载前不跳版 */
 img { max-width: 100%; height: auto; }
 figure.fig { margin: 16px 0 18px; }
 figure.fig img {
@@ -278,20 +257,14 @@ figure.fig figcaption {
 .fig-meta { margin-left: auto; font-size: 11.5px; }
 
 h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
-
-/* 正文层级缩进：生成的文章/笔记里，h3 及它下面的正文一起包进 .indent-N 逐级缩进，
-   标题和正文严格对齐；手写页面（about.html 那种平铺的）靠前面几条兜底 */
 .content h2 { margin-left: 0; }
 .content h3 { margin-left: 16px; }
 .content h4 { margin-left: 32px; }
 .content h5, .content h6 { margin-left: 48px; }
-/* 缩进容器自己负责偏移（嵌套即累加），容器里的标题不再额外缩进 */
 .indent-3, .indent-4, .indent-5, .indent-6 { margin-left: 16px; }
 .indent-3 > :first-child, .indent-4 > :first-child,
 .indent-5 > :first-child, .indent-6 > :first-child { margin-left: 0; }
-/* 文章卡片里的标题也是 h3，但它不算正文小标题，保持不缩进 */
 .content .card-title { margin-left: 0; }
-
 .todo-note {
     display: inline-block;
     margin-left: 8px;
@@ -311,8 +284,6 @@ h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
     padding: 20px;
 }
 .note h2, .note h3 { margin-top: 0; }
-
-/* ===== 页脚 ===== */
 .site-footer {
     margin: 28px 0 0;
     padding: 16px 0 20px;
@@ -320,8 +291,6 @@ h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
     color: var(--muted);
     font-size: 12px;
 }
-
-/* ===== 窄屏：目录折到正文上方 ===== */
 @media (max-width: 860px) {
     .shell { grid-template-columns: minmax(0, 1fr); }
     .toc {
@@ -337,8 +306,6 @@ h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
     .hero { flex-direction: column-reverse; align-items: flex-start; gap: 20px; }
     .hero-avatar { width: 104px; height: 104px; font-size: 40px; }
 }
-
-/* ===== 课程资料 ===== */
 .term {
     margin-left: 6px;
     font-size: 12px;
@@ -387,7 +354,6 @@ ul.files li.file-row::before { content: none; }
 .file-size { flex: 0 0 auto; font-size: 12px; color: var(--muted); }
 .file-note { flex: 0 0 auto; font-size: 11.5px; color: var(--muted); }
 
-/* ===== 课程笔记：课程页上只列目录，正文在 site/notes/<短名>.html ===== */
 .note-index {
     margin: 4px 0 16px;
     padding: 0;
@@ -398,11 +364,9 @@ ul.files li.file-row::before { content: none; }
 .note-index a { color: var(--text); }
 .note-index a:hover { color: var(--accent); }
 
-/* ===== 数学公式（KaTeX，只有含公式的页面才引入它的 css/js） ===== */
 .math-block { display: block; margin: 12px 0; overflow-x: auto; overflow-y: hidden; }
 .katex { font-size: 1.05em; }
 
-/* ===== 按标题折叠正文（site.js 加上去的；禁用 JS 时不会折叠） ===== */
 .fold-head {
     position: relative;
     cursor: pointer;
