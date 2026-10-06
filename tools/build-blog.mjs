@@ -384,7 +384,10 @@ function inline(text, ctx, blockImage) {
 
     let s = String(text);
 
-    // 0. 数学公式先抠出来：里面的 _ * \ 都是 LaTeX 语法，不能被 Markdown 当成强调/转义吃掉。
+    // 1. 行内代码先保护起来：代码里的 $$、\( 都是字面量，不能被当成公式或转义
+    s = s.replace(/(\x60+)([\s\S]*?)\1/g, (m, ticks, code) => stash("<code>" + esc(code.trim()) + "</code>"));
+
+    // 2. 数学公式：里面的 _ * \ 都是 LaTeX 语法，不能被 Markdown 当成强调/转义吃掉。
     //    $$…$$ 和 \[…\] 是独立公式，$…$ 和 \(…\) 是行内公式；
     //    这里只把公式包成 span，真正排版交给页面里的 KaTeX。
     const mathToken = (tex, display) => {
@@ -401,21 +404,18 @@ function inline(text, ctx, blockImage) {
     s = s.replace(/(^|[^\d$])\$([^\s$][^$\n]*?)\$(?!\d)/g, (m, pre, tex) => pre + mathToken(tex, false));
     s = s.replace(/\\\(([\s\S]+?)\\\)/g, (m, tex) => mathToken(tex, false));
 
-    // 1. 原样透传的 HTML 标签 / 注释
+    // 3. 原样透传的 HTML 标签 / 注释
     s = s.replace(/<!--[\s\S]*?-->/g, (m) => stash(m));
     s = s.replace(/<\/?[A-Za-z][\w:-]*(?:"[^"]*"|'[^']*'|[^>"'])*\/?>/g, (m) => stash(m));
 
-    // 2. 反斜杠转义
+    // 4. 反斜杠转义
     s = s.replace(/\\([\\`*_{}\[\]()#+\-.!>~|])/g, (m, ch) => stash(esc(ch)));
 
-    // 3. 行内代码
-    s = s.replace(/(\x60+)([\s\S]*?)\1/g, (m, ticks, code) => stash("<code>" + esc(code.trim()) + "</code>"));
-
-    // 4. 图片（相对路径在这里解析成从站点根出发的路径）
+    // 5. 图片（相对路径在这里解析成从站点根出发的路径）
     s = s.replace(/!\[([^\]]*)\]\(\s*(?:<([^>\n]+)>|([^)\s]+))(?:\s+["']([^"']*)["'])?\s*\)/g,
         (m, alt, angled, bare, title) => stash(renderImage(alt, angled || bare, title, ctx, blockImage)));
 
-    // 5. 链接（指向某篇 md 的会自动换成那篇的 html）
+    // 6. 链接（指向某篇 md 的会自动换成那篇的 html）
     s = s.replace(/\[([^\]]*)\]\(\s*(?:<([^>\n]+)>|([^)\s]+))(?:\s+["']([^"']*)["'])?\s*\)/g,
         (m, label, angled, bare, title) => {
             const href = linkTarget(angled || bare, ctx);
@@ -426,23 +426,23 @@ function inline(text, ctx, blockImage) {
             return stash('<a href="' + esc(href) + '"' + t + outer + ">" + inline(label, ctx) + "</a>");
         });
 
-    // 6. 尖括号自动链接
+    // 7. 尖括号自动链接
     s = s.replace(/<((?:https?|ftp):[^<>\s]+)>/g,
         (m, url) => stash('<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url) + "</a>"));
     s = s.replace(/<([\w.+-]+@[\w-]+\.[\w.-]+)>/g,
         (m, mail) => stash('<a href="mailto:' + esc(mail) + '">' + esc(mail) + "</a>"));
 
-    // 7. 剩下的纯文本整体转义
+    // 8. 剩下的纯文本整体转义
     s = esc(s);
 
-    // 8. 粗体 / 斜体 / 删除线（此时占位符里的 HTML 不会被误伤）
+    // 9. 粗体 / 斜体 / 删除线（此时占位符里的 HTML 不会被误伤）
     s = s.replace(/\*\*([^\s*](?:[\s\S]*?[^\s*])?)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/__([^\s_](?:[\s\S]*?[^\s_])?)__/g, "<strong>$1</strong>");
     s = s.replace(/~~([^\s~](?:[\s\S]*?[^\s~])?)~~/g, "<del>$1</del>");
     s = s.replace(/\*([^\s*](?:[\s\S]*?[^\s*])?)\*/g, "<em>$1</em>");
     s = s.replace(/(^|[\s(（])_([^\s_](?:[\s\S]*?[^\s_])?)_(?=[\s)）,.!?;:，。！？；：]|$)/g, "$1<em>$2</em>");
 
-    // 9. 还原占位符
+    // 10. 还原占位符
     return s.replace(/\u0000(\d+)\u0001/g, (m, i) => tokens[Number(i)] ?? m);
 }
 
@@ -607,13 +607,84 @@ function splitRow(line) {
     return cells.map((c) => c.trim());
 }
 
+/**
+ * 把跨行的 $$…$$ 整段抠出来，换成独立的公式块行。
+ * 这样 $$ 顶格、跟在句子后面、跟在列表项后面、跨多少行都认；
+ * 围栏代码块里的 $$（比如 ```latex 示例）和行内代码里的 $$ 都原样留着。
+ */
+function extractDisplayMath(lines, ctx) {
+    const out = [];
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i];
+
+        /* 围栏代码块整段照抄 */
+        const fence = /^\s*(\x60{3,}|~{3,})/.exec(line);
+        if (fence) {
+            const marker = fence[1].charAt(0);
+            const close = new RegExp("^\\s*" + (marker === "\x60" ? "\x60" : "~") + "{3,}\\s*$");
+            out.push(line);
+            i++;
+            while (i < lines.length) {
+                out.push(lines[i]);
+                const isClose = close.test(lines[i]);
+                i++;
+                if (isClose) { break; }
+            }
+            continue;
+        }
+
+        const at = line.indexOf("$$");
+        if (at < 0) { out.push(line); i++; continue; }
+        /* 反引号个数是奇数，说明这个 $$ 在行内代码里 */
+        if ((line.slice(0, at).match(/\x60/g) || []).length % 2 === 1) { out.push(line); i++; continue; }
+
+        const before = line.slice(0, at);
+        let rest = line.slice(at + 2);
+        const parts = [];
+        let after = "";
+        let closed = false;
+        while (true) {
+            const end = rest.indexOf("$$");
+            if (end >= 0) {
+                parts.push(rest.slice(0, end));
+                after = rest.slice(end + 2);
+                closed = true;
+                break;
+            }
+            parts.push(rest);
+            i++;
+            if (i >= lines.length) { break; }
+            rest = lines[i];
+        }
+        if (!closed) { warn(ctx.label + " 有个 $$ 公式没找到收尾的 $$"); }
+
+        ctx.hasMath = true;
+        if (before.trim()) { out.push(before); }
+        /* 公式块本身用哨兵传递，免得被「原样透传 HTML」的规则连带吞掉后面那行文字 */
+        ctx.mathBlocks = ctx.mathBlocks || [];
+        ctx.mathBlocks.push('<div class="math-block">\\[' + esc(parts.join("\n").trim()) + "\\]</div>");
+        out.push("\u0000M" + (ctx.mathBlocks.length - 1) + "\u0000");
+        if (after.trim()) { out.push(after); }
+        i++;
+    }
+
+    return out;
+}
+
 function renderBlocks(lines, ctx, top) {
     const used = ctx.headingIds;
+
+    /* 顶层先做一遍公式提取：跨行的 $$…$$ 出现在哪儿都能变成独立公式块 */
+    if (top) { lines = extractDisplayMath(lines, ctx); }
+
     let out = "";
     let i = 0;
 
     const isBlockStart = (line, idx) => {
         if (!line.trim()) { return true; }
+        if (/^\u0000M\d+\u0000$/.test(line)) { return true; }        // 提取阶段抠出的公式块
         if (RE_FENCE.test(line) || RE_HEADING.test(line) || RE_HR.test(line) ||
             RE_QUOTE.test(line) || RE_LIST.test(line) || RE_HTML_BLOCK.test(line)) { return true; }
         if (RE_TABLE_ROW.test(line) && idx + 1 < lines.length && RE_TABLE_DELIM.test(lines[idx + 1]) &&
@@ -625,6 +696,14 @@ function renderBlocks(lines, ctx, top) {
         const line = lines[i];
 
         if (!line.trim()) { i++; continue; }
+
+        // ---- 提取阶段抠出来的独立公式 ----
+        const mathIdx = /^\u0000M(\d+)\u0000$/.exec(line);
+        if (mathIdx && ctx.mathBlocks) {
+            out += ctx.mathBlocks[Number(mathIdx[1])] + "\n";
+            i++;
+            continue;
+        }
 
         // ---- 代码块 ----
         const fence = RE_FENCE.exec(line);
