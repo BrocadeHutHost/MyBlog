@@ -137,8 +137,9 @@ $$
 两平面垂直等价于点积为0，平行等价于法向量坐标成比例。
 
 设两平面的法向量分别为 $\boldsymbol{n}_1 = (A_1, B_1, C_1)$ 和 $\boldsymbol{n}_2 = (A_2, B_2, C_2)$。
+<a id="向量夹角的余弦公式"></a>
 
-- **向量夹角的余弦公式：**<a id="向量夹角的余弦公式"></a>
+- **向量夹角的余弦公式：**
    $$\cos\theta = \frac{|\boldsymbol{n}_1 \cdot \boldsymbol{n}_2|}{|\boldsymbol{n}_1||\boldsymbol{n}_2|} = \frac{|A_1A_2 + B_1B_2 + C_1C_2|}{\sqrt{A_1^2 + B_1^2 + C_1^2}\sqrt{A_2^2 + B_2^2 + C_2^2}}$$
 - **垂直条件：**
    $$\boldsymbol{n}_1 \cdot \boldsymbol{n}_2 = 0 \implies A_1A_2 + B_1B_2 + C_1C_2 = 0$$
