@@ -123,13 +123,29 @@ $$
 
 #### 平面的一般方程
 
-任何一个三元一次方程 $$Ax+By+Cz+D=0$$都表示一个平面，这就是**平面的一般式方程**。其中，**\(x,y,z\) 的系数组成的向量 $\boldsymbol{n}=(A,B,C)$ 就是该平面的一个法向量。**
+任何一个三元一次方程 $$Ax+By+Cz+D=0$$都表示一个平面，这就是**平面的一般式方程**。其中，$x,y,z$ 的系数组成的向量 $\boldsymbol{n}=(A,B,C)$ 就是该平面的一个法向量。
 
 #### 平面的截距式方程
 
+将平面在 $x, y, z$ 轴上的截距点 $(a,0,0), (0,b,0), (0,0,c)$ 代入一般式方程 $Ax+By+Cz+D=0$，解出系数并化简，即得**平面的截距式方程**：$$\frac{x}{a} + \frac{y}{b} + \frac{z}{c} = 1$$
+> 注意！截距式方程要求三个截距都存在且均不为 0
+
 #### 两平面的夹角
 
+两平面的夹角 $\theta$ 就是它们**法向量夹角**的绝对值（取锐角或直角），代入[向量夹角的余弦公式](#向量夹角的余弦公式)即可求出；
 
+两平面垂直等价于点积为0，平行等价于法向量坐标成比例。
 
+设两平面的法向量分别为 $\boldsymbol{n}_1 = (A_1, B_1, C_1)$ 和 $\boldsymbol{n}_2 = (A_2, B_2, C_2)$。
+
+- **向量夹角的余弦公式：**<a id="向量夹角的余弦公式"></a>
+   $$\cos\theta = \frac{|\boldsymbol{n}_1 \cdot \boldsymbol{n}_2|}{|\boldsymbol{n}_1||\boldsymbol{n}_2|} = \frac{|A_1A_2 + B_1B_2 + C_1C_2|}{\sqrt{A_1^2 + B_1^2 + C_1^2}\sqrt{A_2^2 + B_2^2 + C_2^2}}$$
+- **垂直条件：**
+   $$\boldsymbol{n}_1 \cdot \boldsymbol{n}_2 = 0 \implies A_1A_2 + B_1B_2 + C_1C_2 = 0$$
+- **平行/重合条件：**
+   $$\boldsymbol{n}_1 \parallel \boldsymbol{n}_2 \implies \frac{A_1}{A_2} = \frac{B_1}{B_2} = \frac{C_1}{C_2} \quad (\text{分母不为0})$$
+- **距离公式：**
+    点 $P_0(x_0, y_0, z_0)$ 到平面 $Ax+By+Cz+D=0$ 的距离 $d$ 为：
+   $$ d = \frac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}} $$
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
