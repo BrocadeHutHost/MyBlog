@@ -42,22 +42,32 @@ $\cos\alpha，\cos\beta，\cos\gamma$称为向量$r$的方向余弦.
 
 > 数量积：$\vec{a} \cdot \vec{b} = \bigl| \vec{a}\bigr| \bigl| \vec{b}\bigr| \cos\widehat{(\boldsymbol{a}, \boldsymbol{b})}$  
 >向量$a,b$的夹角余弦公式$\cos\widehat{(\boldsymbol{a},\boldsymbol{b})} = \frac{\boldsymbol{a} \cdot \boldsymbol{b}}{\bigl|\boldsymbol{a}\bigr| \, \bigl|\boldsymbol{b}\bigr|}$  
->
->
->
->
->
->
->
->
-
+>数量积的坐标表达式：$a \cdot b=a_x b_x+a_y b_y+a_z b_z$  
 
 ### 向量的向量积
-
-
-
+这部分主要是一下公式理解即可
+- $\vec c$垂直于$\vec a$与$\vec b$所决定的平面，$\vec c$的模$\bigl| c \bigr| = \bigl| a \bigr|  \bigl| b \bigr| \sin \theta$,此时的$\vec c$被称为$\vec a$与$\vec b$的向量积，记作$\vec c = \vec a \times \vec b$
+- $\vec a \times \vec a = 0$
+- $\vec a \times \vec b = 0$是$\vec a \mathop{//} \vec b$的充要条件
+- (1)$\vec a \times \vec b = - \vec b \times \vec a$
+- (2)$(\vec a +\vec b)\times \vec c = \vec a \times \vec c + \vec b \times \vec c$
+- (3)(3) $(\lambda \vec{a}) \times \vec{b} = \vec{a} \times (\lambda \vec{b}) = \lambda (\vec{a} \times \vec{b}) \quad (\lambda \text{ 为数})$  
+- 向量积的坐标表达式$\vec{a} \times \vec{b} = (a_y b_z - a_z b_y)\,\vec{i} + (a_z b_x - a_x b_z)\,\vec{j} + (a_x b_y - a_y b_x)\,\vec{k}$,该式可写成三阶行列式$$\vec{a} \times \vec{b} =
+\begin{vmatrix}
+\vec{i} & \vec{j} & \vec{k} \\
+a_x & a_y & a_z \\
+b_x & b_y & b_z
+\end{vmatrix}$$
 
 ### 向量的混合积
+向量$\vec{a}、\vec{b}、\vec{c}$的混合积定义为$(\vec{a} \times \vec{b}) \cdot \vec{c}$，记作$[\vec{a}\vec{b}\vec{c}]。$
+混合积的几何意义：
+
+- 向量的混合积的绝对值表示以向量$\vec{a}，\vec{b}，\vec{c}$内棱的平行六面体的体积  
+- 其中，如果向量$\vec{a}，\vec{b}，\vec{c}$组成右手系，那么混合积符号为正  
+- 反之，如果向量$\vec{a}，\vec{b}，\vec{c}$组成左手系，那么混合积符号为负  
+
+另外，当混合积为0时向量$\vec{a}，\vec{b}，\vec{c}$共面，反之，向量$\vec{a}，\vec{b}，\vec{c}$可以构成平行六面体
 
 
 
@@ -99,9 +109,3 @@ $\cos\alpha，\cos\beta，\cos\gamma$称为向量$r$的方向余弦.
 
 
 
-
-
-
-
-
->
