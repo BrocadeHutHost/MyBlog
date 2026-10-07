@@ -3,6 +3,7 @@
 > 前言：网上个人博客众多，动效华丽好看，但是作为长期个人网站运营，复杂的动效难以维护，也会与内容喧宾夺主，所以我选择以简约风格部署网站，尽量呈现博客核心内容  
 > 原项目由 C# + Avalonia 跨平台框架生成，由于性能问题改为传统技术栈。
 
+- 非常简单简约，源代码只包含13个文件，而其中10个文件都是html
 - 仓库：<https://github.com/BrocadeHutHost/MyBlog>
 - 线上示例（作者自己的站，可以点开看效果）：<https://brocadehuthost.github.io/MyBlog/>
 - 许可：[MIT](LICENSE)
