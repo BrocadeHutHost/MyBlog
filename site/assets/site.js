@@ -334,6 +334,35 @@
     revealFromHash();
     window.addEventListener("hashchange", revealFromHash);
 
+    /* ==========================================================================
+       复制正文时带上出处：选中的文字后面补一段「来源：页面标题 + 当前地址」。
+       复制代码块里的内容不加，免得代码粘出去带尾巴。
+       ========================================================================== */
+    var COPY_SOURCE = true;   // 想关掉改成 false
+
+    document.addEventListener("copy", function (e) {
+        if (!COPY_SOURCE || !e.clipboardData) { return; }
+        var sel = window.getSelection();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) { return; }
+        var text = String(sel.toString());
+        if (!text.replace(/\s/g, "")) { return; }
+
+        var node = sel.getRangeAt(0).commonAncestorContainer;
+        var el = node && node.nodeType === 1 ? node : (node ? node.parentElement : null);
+        var box = document.getElementById("content") || document.body;
+        if (el && !box.contains(el)) { return; }
+        if (el && el.closest("pre, code")) { return; }
+
+        var head = document.querySelector(".page-title") ||
+            document.querySelector(".hero-title") ||
+            document.querySelector(".toc-page");
+        var title = head ? head.textContent.trim() : document.title;
+        var url = location.href.split("#")[0];
+
+        e.clipboardData.setData("text/plain", text + "\n\n来源：" + title + "\n" + url);
+        e.preventDefault();
+    });
+
     var ticking = false;
     window.addEventListener("scroll", function () {
         if (ticking) { return; }

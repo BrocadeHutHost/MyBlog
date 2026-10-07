@@ -41,8 +41,8 @@ const COURSES_JS = path.join(ASSETS, "courses.js");
 
 const SITE_NAME = "锦 的博客";
 
-/** 头像直接用 GitHub 上的地址（实时取，仓库里不放图片）：换了 GitHub 头像，页面跟着变 */
-const AVATAR_URL = "https://avatars.githubusercontent.com/BrocadeHutHost?s=256";
+const AVATAR_URL = "https://avatars.githubusercontent.com/BrocadeHutHost?s=256";   // 头像：直接引用 GitHub 头像，换了头像页面跟着变
+const PROFILE_URL = "https://github.com/BrocadeHutHost";                           // 点头像跳到这里（作者主页），想换改这一行
 
 /** 标签页图标 / 添加到主屏幕时用的图，和头像同一个地址，浏览器只会缓存一份 */
 const ICON_LINKS =
@@ -1102,7 +1102,10 @@ function pageHeader(current, base) {
     ).join("\n");
     return '<header class="topbar">\n' +
         '    <div class="topbar-inner">\n' +
-        '        <a class="brand" href="' + base + 'index.html"><img class="brand-mark" src="' + AVATAR_URL + '" alt="" referrerpolicy="no-referrer"><span>' + SITE_NAME + "</span></a>\n" +
+        '        <span class="brand">\n' +
+        '            <a class="brand-avatar" href="' + PROFILE_URL + '" target="_blank" rel="noopener" title="我的主页"><img class="brand-mark" src="' + AVATAR_URL + '" alt="" referrerpolicy="no-referrer"></a>\n' +
+        '            <a class="brand-name" href="' + base + 'index.html">' + SITE_NAME + "</a>\n" +
+        "        </span>\n" +
         '        <nav class="topnav">\n' + links + "\n        </nav>\n" +
         "    </div>\n" +
         "</header>\n\n";

@@ -55,8 +55,10 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
     gap: 16px;
 }
 
-.brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 700; font-size: 15px; }
-.brand:hover { color: var(--text); }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-avatar { display: block; line-height: 0; }
+.brand-name { color: var(--text); font-weight: 700; font-size: 15px; }
+.brand-name:hover { color: var(--accent); }
 .brand-mark {
     display: block;
     width: 24px; height: 24px; border-radius: 50%;
@@ -120,6 +122,7 @@ h2[id], h3[id] { scroll-margin-top: calc(var(--topbar-h) + 16px); }
 .hero-title { margin: 0; font-size: 30px; font-weight: 700; }
 .hero-tagline { margin: 8px 0 0; color: var(--text-2); font-size: 15px; }
 .hero-bio { margin: 14px 0 0; max-width: 560px; color: var(--text-2); font-size: 13.5px; }
+.hero-avatar-link { flex: 0 0 auto; display: block; border-radius: 50%; }
 .hero-avatar {
     flex: 0 0 auto;
     display: block;
@@ -302,7 +305,7 @@ h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
     }
     .content { padding: 22px 20px 0; }
     .topbar-inner { padding: 0 16px; overflow-x: auto; }
-    .brand span { display: none; }
+    .brand-name { display: none; }
     .hero { flex-direction: column-reverse; align-items: flex-start; gap: 20px; }
     .hero-avatar { width: 104px; height: 104px; font-size: 40px; }
 }

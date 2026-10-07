@@ -18,7 +18,10 @@
               backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid var(--border); }
     .topbar-inner { max-width:960px; margin:0 auto; padding:0 24px; height:60px;
                     display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; color:var(--text); }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .brand-avatar { display:block; line-height:0; }
+    .brand-name { font-weight:700; font-size:16px; color:var(--text); }
+    .brand-name:hover { color:var(--accent); }
     .brand-mark { width:28px; height:28px; border-radius:50%; display:block; }
     .topnav { display:flex; align-items:center; gap:2px; flex-wrap:wrap; }
     .topnav a { padding:6px 12px; border-radius:6px; font-size:14px; color:var(--text-2); }
@@ -47,7 +50,7 @@
 
 <header class="topbar">
     <div class="topbar-inner">
-        <a class="brand" href="#" data-root=""><img class="brand-mark" src="https://avatars.githubusercontent.com/BrocadeHutHost?s=256" alt="" referrerpolicy="no-referrer"><span>锦 的博客</span></a>
+        <span class="brand"><a class="brand-avatar" href="https://github.com/BrocadeHutHost" target="_blank" rel="noopener" title="我的主页"><img class="brand-mark" src="https://avatars.githubusercontent.com/BrocadeHutHost?s=256" alt="" referrerpolicy="no-referrer"></a><a class="brand-name" href="#" data-root="">锦 的博客</a></span>
         <nav class="topnav">
             <a href="#" data-root="">首页</a>
             <a href="#" data-root="articles.html">文章</a>
