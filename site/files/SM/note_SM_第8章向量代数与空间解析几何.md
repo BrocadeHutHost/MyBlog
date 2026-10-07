@@ -149,4 +149,9 @@ $$
     点 $P_0(x_0, y_0, z_0)$ 到平面 $Ax+By+Cz+D=0$ 的距离 $d$ 为：
    $$ d = \frac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}} $$
 
+## 第四节 空间直线及其方程
+
+
+
+
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>

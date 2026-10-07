@@ -10,3 +10,16 @@ artifacts/
 *.suo
 .vs/
 .idea/
+
+## 生成物：由 tools/build-blog.mjs 生成，线上由 GitHub Actions 现场生成，不入库
+/site/*.html
+!/site/index.html
+!/site/articles.html
+!/site/courses.html
+!/site/categories.html
+!/site/tags.html
+!/site/about.html
+!/site/404.html
+/site/notes/*.html
+/site/assets/posts.js
+/site/assets/courses.js
