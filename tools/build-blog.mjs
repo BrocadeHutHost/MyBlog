@@ -12,7 +12,7 @@
 
    用法（在仓库根目录）：
      node tools/build-blog.mjs             生成
-     node tools/build-blog.mjs --check     只检查产物是否最新（CI 用，落后则退出码 1）
+     node tools/build-blog.mjs --check     只看本地产物和源文件是否一致（落后则退出码 1）
      node tools/build-blog.mjs --watch     监听 md / 课程资料改动，自动重新生成
      node tools/build-blog.mjs --serve     顺带起一个本地静态服务器（默认 8080）
      node tools/build-blog.mjs --help      看这份说明
@@ -1500,7 +1500,7 @@ function build() {
         slugs.add(post.slug);
     }
 
-    // 日期新的在前；同一天按短名排，保证每次生成的顺序都一样（CI 里要对比生成结果）
+    // 日期新的在前；同一天按短名排，保证每次生成的顺序都一样
     posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : naturalCompare(a.slug, b.slug)));
 
     for (const post of posts) {
