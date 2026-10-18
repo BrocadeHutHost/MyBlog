@@ -133,4 +133,68 @@ class User {
         this.age = age;  // this.age 是成员变量
     }
 }
+```  
+## 数据类型转换
+
+### 自动类型转换（隐式）
+
+**条件**：类型兼容，且目标类型范围 **大于** 源类型，编译器自动完成。
+
+```java
+byte → short → int → long → float → double
+char → int → long → float → double
 ```
+
+```java
+int i = 100;
+long l = i;       // 自动
+double d = l;     // 自动
+
+char c = 'A';
+int n = c;        // 自动，n = 65
+```
+
+> `boolean` 不参与任何数值转换  
+> `long → float` 虽可能丢精度，但仍属自动转换
+
+### 强制类型转换（显式）
+
+**大范围 → 小范围**，必须用 `(目标类型)`，可能**截断小数**或**溢出**。
+
+```java
+目标类型 变量 = (目标类型) 源值;
+```
+
+```java
+double d = 3.99;
+int i = (int) d;        // 3，截断小数
+
+int big = 300;
+byte b = (byte) big;    // 44，溢出
+
+long l = 100L;
+int n = (int) l;        // 100
+```
+
+### 表达式中的自动提升
+
+`byte`、`short`、`char` 参与运算时，先提升为 `int`。
+
+```java
+byte a = 1, b = 2;
+// byte c = a + b;   // 编译错误：a + b 是 int
+int c = a + b;       // 正确
+byte d = (byte)(a + b); // 需强转
+```
+
+### 常见转换
+```java
+// 字符串 → 基本类型
+int n = Integer.parseInt("123");
+double d = Double.parseDouble("3.14");
+
+// 基本类型 → 字符串
+String s1 = String.valueOf(123);
+String s2 = 123 + "";        // 不推荐，可读性差
+```
+
