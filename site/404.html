@@ -66,18 +66,18 @@
     <h1>404 Not Found</h1>
     <p class="sub">这个地址没有对应的页面，可能的原因：文章已删除、链接过期与输入错误</p>
     <ul>
-        <li>返回 <a href="#" data-root="">首页</a>，或<a href="#" data-root="articles.html">文章</a> 列表。</li>
+        <li>返回 <a href="#" data-root="">首页</a>，或<a href="#" data-root="articles.html">文章</a> 列表</li>
     </ul>
     <p class="foot">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</p>
 </div>
 
 <script>
     // 站点可能被部署在子路径下（https://<user>.github.io/<repo>/），
-    // 404 页面的地址又是未知的，所以按路径第一段算出站点根目录。
+    // 404 页面的地址又是未知的，所以按路径第一段算出站点根目录
     // 顶栏链接同样是相对路径，在 404 页上会指错目录，因此统一改成
-    // data-root，由这一段脚本一次性修正。
+    // data-root，由这一段脚本一次性修正
     (function () {
-        // 若已知部署子路径可直接写死（如 "/blog/"）；留空则按路径第一段自动推断。
+        // 若已知部署子路径可直接写死（如 "/blog/"）；留空则按路径第一段自动推断
         var ROOT = "";
         var seg = ROOT || location.pathname.split("/")[1];
         var root = seg ? "/" + seg + "/" : "/";

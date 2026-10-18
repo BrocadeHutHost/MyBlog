@@ -77,7 +77,7 @@
 
     function viewCategories(root) {
         var groups = groupBy(POSTS, function (p) { return [p.category]; });
-        var html = '<h2 id="cat-all">全部分类</h2><p class="page-sub">共 ' + POSTS.length + " 篇文章，按分类归拢。</p>";
+        var html = '<h2 id="cat-all">全部分类</h2><p class="page-sub">共 ' + POSTS.length + " 篇文章，按分类归拢</p>";
         html += groups.map(function (g) {
             return '<section class="group">' +
                 '<div class="indent-3">' +
@@ -146,7 +146,7 @@
 
     function viewCourses(root) {
         if (!COURSES.length) {
-            root.innerHTML = '<p class="page-sub">还没有课程。</p>';
+            root.innerHTML = '<p class="page-sub">还没有课程</p>';
             return;
         }
         root.innerHTML = COURSES.map(function (c) {
@@ -176,7 +176,7 @@
             } else if (notes.length) {
                 html += notes.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("");
             } else {
-                html += '<p class="page-sub">还没写。</p>';
+                html += '<p class="page-sub">还没写</p>';
             }
             html += "</div>";
 
@@ -334,8 +334,8 @@
     window.addEventListener("hashchange", revealFromHash);
 
     /* ==========================================================================
-       复制正文时带上出处：选中的文字后面补一段「来源：页面标题 + 当前地址」。
-       复制代码块里的内容不加，免得代码粘出去带尾巴。
+       复制正文时带上出处：选中的文字后面补一段「来源：页面标题 + 当前地址」
+       复制代码块里的内容不加，免得代码粘出去带尾巴
        ========================================================================== */
     var COPY_SOURCE = true;   // 想关掉改成 false
 
