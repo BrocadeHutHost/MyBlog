@@ -159,11 +159,10 @@
                 (c.term ? ' <span class="term">' + esc(c.term) + "</span>" : "") + "</h2>";
             if (c.intro) { html += "<p>" + esc(c.intro) + "</p>"; }
             html += '<div class="indent-3">' +
-                '<h3 id="' + esc(id) + '-files" data-toc-text="资料">资料' +
-                (files.length ? "" : ' <span class="todo-note">待补充</span>') + "</h3>";
+                '<h3 id="' + esc(id) + '-files" data-toc-text="资料">资料' + "</h3>";
             html += files.length
                 ? fileList(files)
-                : '<p class="page-sub">资料还没整理上来，先空着。</p>';
+                : '<p class="page-sub"> 暂无 </p>';
             html += "</div>";
 
             html += '<div class="indent-3">' +
