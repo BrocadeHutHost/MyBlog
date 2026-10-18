@@ -24,7 +24,7 @@
 | `site/posts/**` | 文章源文件（md 和图片） | 换成自己的 |
 | `site/files/**` | 课程资料源文件 | 换成自己的 |
 | `site/assets/site.css` | 样式 | 按需改 |
-| `site/assets/site.js` | 列表、左侧目录、折叠正文 | 按需改 |
+| `site/assets/site.js` | 列表、左侧目录、折叠正文、目录收起、字号开关 | 按需改 |
 | `site/assets/katex/` | 数学公式引擎 | 别动 |
 | `site/<短名>.html` | 每篇文章的页面 | 生成物，别手改 |
 | `site/notes/*.html` | 每篇笔记的页面 | 生成物，别手改 |
@@ -183,8 +183,8 @@ Pages 的地址里用户名是全小写，仓库名保留大小写。
 | `README.md` | 「部署」一节里的 Pages 地址 | 你的地址 |
 | `LICENSE` | 第 3 行 | 换成你的名字或昵称 |
 | `site/posts/_template/index.md` | 第 2 到 10 行 front matter | 把示例分类、标签换成你常用的；这个文件不生成页面，留着当模板（`tools/build-blog.mjs` 第 928 行跳过 `_` 开头的目录） |
-| `site/assets/site.js` | 第 276 行 `FOLD_OPEN_BY_DEFAULT` | 可选，见第 4 节 |
-| `site/assets/site.css` | 第 2 到 17 行 `:root`、第 264 行 `.indent-*` | 可选，见第 4 节 |
+| `site/assets/site.js` | 第 461 行 `FOLD_OPEN_BY_DEFAULT` | 可选，见第 4 节 |
+| `site/assets/site.css` | 第 2 到 17 行 `:root`、第 374 行 `.indent-*` | 可选，见第 4 节 |
 | `.github/workflows/deploy.yml` | 不用改 | 里面没有用户名和仓库名 |
 
 `site/index.html` 第 17 到 24 行、其余 6 个页面第 16 到 23 行是顶栏，位置随页面长度略有差别，按 `<nav class="topnav">` 搜更稳。
@@ -226,7 +226,7 @@ Pages 的地址里用户名是全小写，仓库名保留大小写。
 1. 从 `NAV` 和 7 个手写页面的 `<nav>` 里删掉对应的 `<a>`。
 2. 删掉页面文件。
 3. 从 `RESERVED_SLUGS` 第 82 行删掉它的短名。留着也能用，只是白占一个名字。
-4. 删 `site/categories.html` 或 `site/tags.html` 不用改 `site/assets/site.js`。`data-view` 的映射在第 189 到 199 行，页面没了就没人调用。
+4. 删 `site/categories.html` 或 `site/tags.html` 不用改 `site/assets/site.js`。`data-view` 的映射在第 188 到 199 行，页面没了就没人调用。
 
 删掉「文章」栏目要改一处额外的地方：生成的文章页固定高亮 `articles.html`（`tools/build-blog.mjs` 第 1061 行）。
 
@@ -241,7 +241,7 @@ Pages 的地址里用户名是全小写，仓库名保留大小写。
 
 #### 正文默认折叠
 
-`site/assets/site.js` 第 276 行：
+`site/assets/site.js` 第 461 行：
 
 ```javascript
 var FOLD_OPEN_BY_DEFAULT = true;
@@ -249,9 +249,22 @@ var FOLD_OPEN_BY_DEFAULT = true;
 
 改成 `false`，正文默认收起，点小标题展开。折叠是 js 加的，禁用 js 时内容照常显示。
 
+#### 目录折叠与字号放大
+
+不用改 HTML。`site/assets/site.js` 会在目录右上角加一个小箭头，在有二级条目的目录项右侧加一个小三角，在顶栏右侧加一枚 `A+`：
+
+- 小箭头把左侧目录收成一条窄边，再点展开；窄屏上收成一行「目录」。
+- 有二级条目的目录项，点右侧小三角可以单独收起这一组。
+- `A+` 在 100% → 115% → 130% → 145% → 160% 之间循环，点一次放大一档，点满一轮回到标准。
+- 三者都用 `localStorage` 记住，不写进页面，也不影响其他访客。
+
+不想要某个功能，删掉 `setupTocToggle()`、`setupTocFolds()` 或 `setupFontToggle()` 的调用即可。
+放大倍数改 `site/assets/site.js` 里的 `FS_LEVELS`。
+字号放大依赖 `html { font-size: calc(16px * var(--fs-scale)); }`，样式表里的 `font-size` 都按 16px 基准写成了 rem。
+
 #### 缩进深度
 
-`site/assets/site.css` 第 264 行：
+`site/assets/site.css` 第 374 行：
 
 ```css
 .indent-3, .indent-4, .indent-5, .indent-6 { margin-left: 16px; }
@@ -259,7 +272,7 @@ var FOLD_OPEN_BY_DEFAULT = true;
 
 `16px` 就是每层缩进的宽度。脚本用 `.indent-N` 把正文一层层包起来（`tools/build-blog.mjs` 第 969 到 983 行）。
 
-标题自己还有一套左边距，在 `site/assets/site.css` 第 261 到 263 行：`h3` 16px、`h4` 32px、`h5`/`h6` 48px。改缩进时这套一起对齐。
+标题自己还有一套左边距，在 `site/assets/site.css` 第 371 到 373 行：`h3` 16px、`h4` 32px、`h5`/`h6` 48px。改缩进时这套一起对齐。
 
 [Markdown 支持](#markdown-支持)一节也讲了这件事：`##` 顶格，`###` 和 `####` 连正文一起缩进。
 
@@ -272,8 +285,8 @@ var FOLD_OPEN_BY_DEFAULT = true;
 #### 头像尺寸
 
 - 取图尺寸：地址里的 `?s=256`（`tools/build-blog.mjs` 第 45 行）。改大改小不影响布局。
-- 顶栏小头像：`site/assets/site.css` 第 62 行 24px；`site/404.html` 第 22 行 28px。
-- 首页大头像：`site/assets/site.css` 第 126 行 150px，窄屏第 307 行 104px。
+- 顶栏小头像：`site/assets/site.css` 第 66 行 24px；`site/404.html` 第 22 行 28px。
+- 首页大头像：`site/assets/site.css` 第 233 行 150px，窄屏第 419 行 104px。
 
 #### KaTeX
 
@@ -521,7 +534,7 @@ site/                     GitHub Pages 发布的就是这个目录
   notes/                  笔记源文件可以统一放这里，生成的笔记页也在这（不入库）
   assets/
     site.css              样式
-    site.js               渲染列表、左侧目录、折叠正文
+    site.js               渲染列表、左侧目录、折叠正文、目录收起与字号开关
     posts.js              ★ 生成物，不入库
     courses.js            ★ 生成物，不入库
     katex/                数学公式引擎

@@ -228,12 +228,18 @@
         });
 
         toc.innerHTML = items.map(function (it) {
-            var sub = it.children.length
+            var hasSub = it.children.length > 0;
+            var sub = hasSub
                 ? '<div class="toc-sub">' + it.children.map(function (c) {
                       return '<a class="toc-sublink" href="#' + esc(c.id) + '">' + esc(c.text) + "</a>";
                   }).join("") + "</div>"
                 : "";
-            return '<div class="toc-group">' +
+            return '<div class="toc-group' + (hasSub ? " has-sub" : "") +
+                '" data-toc-id="' + esc(it.id) + '">' +
+                (hasSub
+                    ? '<button type="button" class="toc-fold" aria-expanded="true" ' +
+                      'aria-label="收起目录项" title="收起目录项">\u25be</button>'
+                    : "") +
                 '<a class="toc-link" href="#' + esc(it.id) + '">' + esc(it.text) + "</a>" + sub +
                 "</div>";
         }).join("");
@@ -241,6 +247,183 @@
         tocLinks = [].slice.call(toc.querySelectorAll(".toc-link, .toc-sublink")).map(function (a) {
             return { id: a.getAttribute("href").slice(1), el: a };
         });
+    }
+
+    /* ==========================================================================
+       本地存储：file:// 或隐私模式下可能不可用，失败就当没记住
+       ========================================================================== */
+    function readStore(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+    function writeStore(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) {  }
+    }
+
+    /* ==========================================================================
+       目录栏折叠：展开时只多一个小箭头，收起后留一条窄边，状态记在本地
+       ========================================================================== */
+    var TOC_KEY = "myblog-toc-collapsed";
+
+    function setupTocToggle() {
+        var shell = document.querySelector(".shell");
+        var toc = document.querySelector(".toc");
+        if (!shell || !toc) { return; }
+
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "toc-toggle";
+        btn.setAttribute("aria-controls", "toc");
+        btn.innerHTML = '<span aria-hidden="true">\u2039</span>';
+
+        function apply(collapsed) {
+            shell.classList.toggle("toc-collapsed", collapsed);
+            btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            btn.setAttribute("aria-label", collapsed ? "展开目录" : "收起目录");
+            btn.title = collapsed ? "展开目录" : "收起目录";
+            btn.firstChild.textContent = collapsed ? "\u203a" : "\u2039";
+        }
+
+        btn.addEventListener("click", function () {
+            var collapsed = !shell.classList.contains("toc-collapsed");
+            apply(collapsed);
+            writeStore(TOC_KEY, collapsed ? "1" : "0");
+        });
+
+        toc.insertBefore(btn, toc.firstChild);
+        apply(readStore(TOC_KEY) === "1");
+    }
+
+    /* ==========================================================================
+       目录项折叠：有二级条目的大项右侧一个小三角，单独收起这一组
+       ========================================================================== */
+    var TOC_FOLD_KEY = "myblog-toc-folded";
+    var foldedToc = null;
+
+    function readFoldedToc() {
+        if (foldedToc) { return foldedToc; }
+        try {
+            var list = JSON.parse(readStore(TOC_FOLD_KEY) || "[]");
+            foldedToc = Array.isArray(list) ? list : [];
+        } catch (e) {
+            foldedToc = [];
+        }
+        return foldedToc;
+    }
+    function writeFoldedToc() {
+        writeStore(TOC_FOLD_KEY, JSON.stringify(foldedToc || []));
+    }
+
+    function setTocGroupFolded(group, on, remember) {
+        if (!group) { return; }
+        var btn = group.querySelector(".toc-fold");
+        group.classList.toggle("collapsed", on);
+        if (btn) {
+            btn.setAttribute("aria-expanded", on ? "false" : "true");
+            var label = on ? "展开目录项" : "收起目录项";
+            btn.setAttribute("aria-label", label);
+            btn.title = label;
+        }
+        if (remember) {
+            var list = readFoldedToc();
+            var id = group.getAttribute("data-toc-id");
+            var idx = list.indexOf(id);
+            if (on && idx < 0) { list.push(id); }
+            if (!on && idx >= 0) { list.splice(idx, 1); }
+            writeFoldedToc();
+        }
+    }
+
+    /** 跳到某个锚点时，把它所在的目录组展开 */
+    function expandTocGroupFor(id) {
+        var groups = document.querySelectorAll("#toc .toc-group.has-sub");
+        for (var i = 0; i < groups.length; i++) {
+            var links = groups[i].querySelectorAll(".toc-sublink");
+            for (var j = 0; j < links.length; j++) {
+                if (links[j].getAttribute("href") === "#" + id) {
+                    setTocGroupFolded(groups[i], false, false);
+                    return;
+                }
+            }
+        }
+    }
+
+    function setupTocFolds() {
+        var groups = document.querySelectorAll("#toc .toc-group.has-sub");
+        var folded = readFoldedToc();
+        [].forEach.call(groups, function (group) {
+            var btn = group.querySelector(".toc-fold");
+            if (btn) {
+                btn.addEventListener("click", function () {
+                    setTocGroupFolded(group, !group.classList.contains("collapsed"), true);
+                });
+            }
+            setTocGroupFolded(group, folded.indexOf(group.getAttribute("data-toc-id")) >= 0, false);
+        });
+    }
+
+    /* ==========================================================================
+       字号放大：顶栏右侧一枚 A+，点一下放大一档，回到 100% 后循环；状态记在本地
+       ========================================================================== */
+    var FS_KEY = "myblog-font-level";
+    var FS_OLD_KEY = "myblog-font-large";   // 兼容只有开关的旧版本
+    var FS_LEVELS = [1, 1.15, 1.3, 1.45, 1.6];
+
+    function setupFontToggle() {
+        var nav = document.querySelector(".topnav");
+        if (!nav) { return; }
+
+        var actions = document.createElement("div");
+        actions.className = "topbar-actions";
+        nav.parentNode.insertBefore(actions, nav);
+        actions.appendChild(nav);
+
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "fs-toggle";
+        btn.textContent = "A+";
+        btn.setAttribute("aria-pressed", "false");
+        actions.appendChild(btn);
+
+        var hint = document.createElement("span");
+        hint.className = "fs-hint";
+        hint.setAttribute("aria-hidden", "true");
+        actions.appendChild(hint);
+
+        var hintTimer = null;
+
+        function readLevel() {
+            var level = parseInt(readStore(FS_KEY), 10);
+            if (isNaN(level)) {
+                level = readStore(FS_OLD_KEY) === "1" ? 1 : 0;
+            }
+            return level >= 0 && level < FS_LEVELS.length ? level : 0;
+        }
+
+        function apply(level, showHint) {
+            var percent = Math.round(FS_LEVELS[level] * 100);
+            document.documentElement.style.setProperty("--fs-scale", String(FS_LEVELS[level]));
+
+            var text = level === 0 ? "标准字号" : "字号 " + percent + "%";
+            btn.setAttribute("aria-pressed", level > 0 ? "true" : "false");
+            btn.setAttribute("aria-label", text + "（点击切换）");
+            btn.title = text + "（点击切换）";
+
+            if (showHint) {
+                hint.textContent = percent + "%";
+                hint.classList.add("show");
+                clearTimeout(hintTimer);
+                hintTimer = setTimeout(function () { hint.classList.remove("show"); }, 1200);
+            }
+        }
+
+        btn.addEventListener("click", function () {
+            var next = (readLevel() + 1) % FS_LEVELS.length;
+            writeStore(FS_KEY, String(next));
+            writeStore(FS_OLD_KEY, next > 0 ? "1" : "0");
+            apply(next, true);
+        });
+
+        apply(readLevel(), false);
     }
 
     function highlightToc() {
@@ -259,6 +442,9 @@
 
     renderViews();
     buildToc();
+    setupTocToggle();
+    setupTocFolds();
+    setupFontToggle();
     if (window.renderMathInElement) {
         try {
             window.renderMathInElement(document.getElementById("content") || document.body, {
@@ -321,6 +507,7 @@
         if (!id) { return; }
         var el = document.getElementById(id);
         if (!el) { return; }
+        expandTocGroupFor(id);
         while (el && el !== document.body) {
             folds.forEach(function (f) {
                 if (f.head === el || f.nodes.indexOf(el) >= 0) { setFold(f, true); }
