@@ -1072,7 +1072,7 @@ function buildPost(found) {
         (lead ? '        <p class="post-lead">' + inline(lead, ctx) + "</p>\n" : "") +
         '        <hr class="rule">\n\n' +
         indentHtml(content.trim(), 8) + "\n\n" +
-        '        <footer class="site-footer">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</footer>\n' +
+        '        <footer class="site-footer">© 2026 锦，托管于 GitHub Pages</footer>\n' +
         "    </main>\n" +
         "</div>\n\n" +
         '<script src="assets/posts.js"></script>\n' +
@@ -1283,7 +1283,7 @@ function buildNotePage(note) {
         "        " + meta + "\n" +
         '        <hr class="rule">\n\n' +
         indentHtml(note.html || '<p class="page-sub">这篇还没写。</p>', 8) + "\n\n" +
-        '        <footer class="site-footer">© 2026 锦 · 纯静态站点，托管于 GitHub Pages</footer>\n' +
+        '        <footer class="site-footer">© 2026 锦，托管于 GitHub Pages</footer>\n' +
         "    </main>\n" +
         "</div>\n\n" +
         (note.hasMath ? katexScriptTags(base) : "") +
