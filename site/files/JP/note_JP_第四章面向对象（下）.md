@@ -109,7 +109,7 @@ draft: false         # 完成后设为 false，列表正常显示
 | **方法** | 最终方法，**不能被子类重写** | `public final void print() { }` |
 | **变量** | 常量，**只能被赋值一次** | `final int MAX = 10;` |
 
-1. 修饰类（防止继承）
+**修饰类（防止继承）**
 ```java
 // 定义最终类
 final class FinalClass { }
@@ -118,7 +118,7 @@ final class FinalClass { }
 // class SubClass extends FinalClass { }
 ```
 
-2. 修饰方法（防止重写）
+**修饰方法（防止重写）**
 ```java
 class Parent {
     // 定义最终方法
@@ -133,7 +133,7 @@ class Child extends Parent {
 }
 ```
 
-3. 修饰变量（定义常量）
+**修饰变量（定义常量）**
 **基本数据类型**：值不可变。
 ```java
 final int NUM = 10;
