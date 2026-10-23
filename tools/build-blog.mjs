@@ -1359,8 +1359,17 @@ function buildCourses() {
                 html: noteHtml
             };
             notePages.push(note);
-            noteList.push({ title: note.title, slug: note.slug, draft: note.draft });
+            const listItem = { title: note.title, slug: note.slug, draft: note.draft };
+            // front matter 里写了 order: 就按它排；没写的保持原来的文件名顺序，排在后面
+            const order = Number(fm.data.order);
+            if (Number.isFinite(order)) { listItem.order = order; }
+            noteList.push(listItem);
         }
+        noteList.sort((a, b) => {
+            const ao = a.order === undefined ? Infinity : a.order;
+            const bo = b.order === undefined ? Infinity : b.order;
+            return ao === bo ? 0 : (ao < bo ? -1 : 1);
+        });
         if (noteList.length && notes.length) {
             info("site/files/" + entry.name + "/ 既有笔记 md、course.json 里又有 notes，这次用 md 那份");
         }
