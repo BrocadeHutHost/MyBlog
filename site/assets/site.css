@@ -394,6 +394,30 @@ h4 { margin: 0 0 10px; font-size: 0.875rem; font-weight: 600; }
     padding: 20px;
 }
 .note h2, .note h3 { margin-top: 0; }
+
+/* 笔记页底部：同课程上一篇 / 下一篇 */
+.note-pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 20px;
+    margin: 32px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+}
+.note-pager a { display: inline-flex; align-items: baseline; gap: 6px; max-width: 48%; color: var(--text-2); }
+.note-pager a:hover { color: var(--accent); }
+.note-pager .note-next { margin-left: auto; text-align: right; }
+.note-pager .note-dir { flex: 0 0 auto; color: var(--muted); white-space: nowrap; }
+.note-pager .note-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.note-pager-empty { flex: 1 1 0; }
+.note-pager + .site-footer { border-top: 0; margin-top: 18px; }
+
+@media (max-width: 520px) {
+    .note-pager a { max-width: 100%; }
+}
+
 .site-footer {
     margin: 28px 0 0;
     padding: 16px 0 20px;

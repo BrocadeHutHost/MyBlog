@@ -1249,6 +1249,20 @@ function noteSlugFor(courseSlug, namePart, used) {
 }
 
 /** 每篇笔记一个独立页面：site/notes/<短名>.html */
+/** 同课程笔记的上一篇 / 下一篇：按课程页里的 order 顺序 */
+function notePager(note) {
+    if (!note.prev && !note.next) { return ""; }
+    const link = (item, dir, cls) => item
+        ? '<a class="' + cls + '" href="' + esc(item.slug) + '.html">' +
+          '<span class="note-dir">' + dir + '</span>' +
+          '<span class="note-title">' + esc(item.title) + "</span></a>"
+        : '<span class="note-pager-empty"></span>';
+    return '        <nav class="note-pager" aria-label="同课程笔记">\n' +
+        "            " + link(note.prev, "← 上一篇", "note-prev") + "\n" +
+        "            " + link(note.next, "下一篇 →", "note-next") + "\n" +
+        "        </nav>\n\n";
+}
+
 function buildNotePage(note) {
     const base = NOTES_BASE;
     const excerpt = truncate(firstParagraph(note.body), 90) || note.title;
@@ -1283,6 +1297,7 @@ function buildNotePage(note) {
         "        " + meta + "\n" +
         '        <hr class="rule">\n\n' +
         indentHtml(note.html || '<p class="page-sub">这篇还没写。</p>', 8) + "\n\n" +
+        notePager(note) +
         '        <footer class="site-footer">© 2026 锦，托管于 GitHub Pages</footer>\n' +
         "    </main>\n" +
         "</div>\n\n" +
@@ -1369,6 +1384,18 @@ function buildCourses() {
             const ao = a.order === undefined ? Infinity : a.order;
             const bo = b.order === undefined ? Infinity : b.order;
             return ao === bo ? 0 : (ao < bo ? -1 : 1);
+        });
+
+        // 把排好序的相邻关系挂到页面数据上，生成笔记页时用来做上一篇 / 下一篇
+        const noteBySlug = new Map();
+        for (const page of notePages) {
+            if (page.courseSlug === entry.name) { noteBySlug.set(page.slug, page); }
+        }
+        noteList.forEach((item, i) => {
+            const page = noteBySlug.get(item.slug);
+            if (!page) { return; }
+            page.prev = i > 0 ? noteList[i - 1] : null;
+            page.next = i < noteList.length - 1 ? noteList[i + 1] : null;
         });
         if (noteList.length && notes.length) {
             info("site/files/" + entry.name + "/ 既有笔记 md、course.json 里又有 notes，这次用 md 那份");

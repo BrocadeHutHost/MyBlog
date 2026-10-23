@@ -286,7 +286,7 @@ var FOLD_OPEN_BY_DEFAULT = true;
 
 - 取图尺寸：地址里的 `?s=256`（`tools/build-blog.mjs` 第 45 行）。改大改小不影响布局。
 - 顶栏小头像：`site/assets/site.css` 第 66 行 24px；`site/404.html` 第 22 行 28px。
-- 首页大头像：`site/assets/site.css` 第 233 行 150px，窄屏第 419 行 104px。
+- 首页大头像：`site/assets/site.css` 第 233 行 150px，窄屏第 443 行 104px。
 
 #### KaTeX
 
@@ -505,6 +505,7 @@ site/notes/                  或者统一放这里，这时要写课程名
 - 笔记里引用的图片不算资料，图片和笔记放一起，写相对路径
 - 笔记开头可以写 front matter：`title:` 笔记名、`date:` 日期；`draft: true` 或正文为空会标「待补充」
 - 课程页的笔记顺序用 front matter 里的 `order:` 控制，数字小的在前；没写 `order` 的排在后面，保持原来的文件名顺序
+- 笔记页底部有「上一篇 / 下一篇」，同样按这个顺序在同课程里跳转
 - 删掉或改名源 md，跑一遍脚本，旧页面自动删
 - 只有一篇 `site/files/<课程>/notes.md` 也支持，笔记名默认「笔记」
 - 一篇笔记 md 都没有时，用 `course.json` 里的 `notes`
