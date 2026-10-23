@@ -90,15 +90,70 @@ public TV(String type) {
 | 构造方法 | 调用本类的其他构造方法 (`this()`) | 调用父类的构造方法 (`super()`) |
 | **共同点** | **在调用构造方法时，都必须位于构造方法的第一行，且只能出现一次** | 同左 |
 
+---
+title: 第四章 面向对象（下）
+date: 2026-10-22
+category: 笔记
+tags: [JAVA, 笔记]
+excerpt: JAVA的学习笔记：final关键字详解及成功示例
+draft: false         # 完成后设为 false，列表正常显示
+---
+
 ### 4.1.4 `final` 关键字
 
-`final` 表示“最终的、不可改变的”。
+`final` 表示“最终的、不可改变的”，用于限制修改。
 
-| 修饰对象 | 作用 | 代码示例 |
+| 修饰对象 | 作用 | 成功示例 |
 |---|---|---|
-| **类** | 最终类，**不能被继承** | `final class Parent { }` (报错：无法从最终Parent进行继承) |
-| **方法** | 最终方法，**不能被子类重写** | `public final void print() { }` (报错：无法覆盖) |
-| **变量** | 常量，**只能被赋值一次** | `final int MAX_VALUE = 5; MAX_VALUE = 10;` (报错：无法为最终变量赋值) |
+| **类** | 最终类，**不能被继承** | `final class A { }` |
+| **方法** | 最终方法，**不能被子类重写** | `public final void print() { }` |
+| **变量** | 常量，**只能被赋值一次** | `final int MAX = 10;` |
+
+1. 修饰类（防止继承）
+```java
+// 定义最终类
+final class FinalClass { }
+
+// 编译报错：无法从最终 FinalClass 进行继承
+// class SubClass extends FinalClass { }
+```
+
+2. 修饰方法（防止重写）
+```java
+class Parent {
+    // 定义最终方法
+    public final void method() {
+        System.out.println("核心逻辑");
+    }
+}
+
+class Child extends Parent {
+    // 编译报错：无法覆盖 Parent 中的 method()
+    // public void method() { }
+}
+```
+
+3. 修饰变量（定义常量）
+**基本数据类型**：值不可变。
+```java
+final int NUM = 10;
+// NUM = 20; // 编译报错：无法为最终变量 NUM 赋值
+```
+
+**引用数据类型**：引用地址不可变，但对象内部属性可变。
+```java
+class Student {
+    String name;
+}
+
+public class Test {
+    public static void main(String[] args) {
+        final Student s = new Student();
+        s.name = "张三"; // 成功：修改对象属性
+        // s = new Student(); // 编译报错：不能改变引用指向
+    }
+}
+```
 
 ## 4.2 抽象类和接口
 
