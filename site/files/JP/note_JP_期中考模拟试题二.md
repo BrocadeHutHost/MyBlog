@@ -767,167 +767,179 @@ throw new RuntimeException("demo");
 
 ## 参考答案与知识点
 
-## 一、单项选择题答案
+### 一、单项选择题答案
 
-1.C。知识点：Java语言类别——高级语言。  
-2.D。知识点：JVM直接运行`.class`字节码。  
-3.A。知识点：`javac.exe`是编译器。  
-4.B。知识点：JDK的`bin`目录存放可执行命令。  
-5.B。知识点：字节码跨平台，JVM依赖具体平台。  
-6.B。知识点：`java`命令解释执行字节码。  
-7.B。知识点：`main()`是程序入口。  
-8.C。知识点：`CLASSPATH`用于查找类文件。  
-9.B。知识点：`String`是引用类型，不是基本数据类型。  
-10.D。知识点：`double`占8字节。  
-11.B。知识点：`double`可存小数；`char`不能用双引号；`boolean`不能赋1；`byte`不能存129。  
-12.C。知识点：标识符不能以数字开头。  
-13.B。知识点：整数除法舍去小数。  
-14.A。知识点：取模结果符号与被除数一致。  
-15.C。知识点：圆括号优先级最高。  
-16.A。知识点：复合赋值隐含强制类型转换，`3.5`截断为3。  
-17.B。知识点：三元运算符。  
-18.C。知识点：JDK 7后`switch`支持`String`。  
-19.B。知识点：`boolean`只接受`true/false`。  
-20.D。知识点：浮点数字面量默认`double`。  
-21.D。知识点：`if`条件结果必须是`boolean`。  
-22.B。知识点：`break`跳出当前循环/`switch`。  
-23.B。知识点：`continue`跳过本次循环剩余部分。  
-24.C。知识点：`do...while`先执行后判断。  
-25.C。知识点：`case`穿透。  
-26.B。知识点：`while`循环输出012。  
-27.B。知识点：数组下标从0开始。  
-28.C。知识点：数组长度是属性`length`。  
-29.B。知识点：二维数组第二维未初始化时元素为`null`。  
-30.A。知识点：方法重载——同名不同参数列表。  
-31.C。知识点：Java值传递；引用类型传递地址副本。  
-32.B。知识点：`void`方法可写`return;`提前结束。  
-33.B。知识点：`Arrays.sort()`升序排序。  
-34.B。知识点：`new`实例化对象。  
-35.D。知识点：`private`本类可见。  
-36.C。知识点：`static`不能修饰局部变量。  
-37.B。知识点：类继承用`extends`。  
-38.B。知识点：重写访问权限不能小于父类。  
-39.C。知识点：类可实现多个接口。  
-40.C。知识点：`Throwable`是异常体系根类。
+| 题号 | 答案 | 解析 |
+|---|---|---|
+| 1 | **C** | Java语言类别——高级语言 |
+| 2 | **D** | JVM直接运行`.class`字节码 |
+| 3 | **A** | `javac.exe`是编译器 |
+| 4 | **B** | JDK的`bin`目录存放可执行命令 |
+| 5 | **B** | 字节码跨平台，JVM依赖具体平台 |
+| 6 | **B** | `java`命令解释执行字节码 |
+| 7 | **B** | `main()`是程序入口 |
+| 8 | **C** | `CLASSPATH`用于查找类文件 |
+| 9 | **B** | `String`是引用类型，不是基本数据类型 |
+| 10 | **D** | `double`占8字节 |
+| 11 | **B** | `double`可存小数；`char`不能用双引号；`boolean`不能赋1；`byte`不能存129 |
+| 12 | **C** | 标识符不能以数字开头 |
+| 13 | **B** | 整数除法舍去小数 |
+| 14 | **A** | 取模结果符号与被除数一致 |
+| 15 | **C** | 圆括号优先级最高 |
+| 16 | **A** | 复合赋值隐含强制类型转换，`3.5`截断为3 |
+| 17 | **B** | 三元运算符 |
+| 18 | **C** | JDK 7后`switch`支持`String` |
+| 19 | **B** | `boolean`只接受`true/false` |
+| 20 | **D** | 浮点数字面量默认`double` |
+| 21 | **D** | `if`条件结果必须是`boolean` |
+| 22 | **B** | `break`跳出当前循环/`switch` |
+| 23 | **B** | `continue`跳过本次循环剩余部分 |
+| 24 | **C** | `do...while`先执行后判断 |
+| 25 | **C** | `case`穿透 |
+| 26 | **B** | `while`循环输出012 |
+| 27 | **B** | 数组下标从0开始 |
+| 28 | **C** | 数组长度是属性`length` |
+| 29 | **B** | 二维数组第二维未初始化时元素为`null` |
+| 30 | **A** | 方法重载——同名不同参数列表 |
+| 31 | **C** | Java值传递；引用类型传递地址副本 |
+| 32 | **B** | `void`方法可写`return;`提前结束 |
+| 33 | **B** | `Arrays.sort()`升序排序 |
+| 34 | **B** | `new`实例化对象 |
+| 35 | **D** | `private`本类可见 |
+| 36 | **C** | `static`不能修饰局部变量 |
+| 37 | **B** | 类继承用`extends` |
+| 38 | **B** | 重写访问权限不能小于父类 |
+| 39 | **C** | 类可实现多个接口 |
+| 40 | **C** | `Throwable`是异常体系根类 |
 
-## 二、多项选择题答案
+### 二、多项选择题答案
 
-1.ACD。知识点：基本数据类型包括`int、boolean、char`；`String、Integer`是引用类型。  
-2.ABCE。知识点：`switch`支持`byte、char、String、enum`等，不支持`double`。  
-3.AB。知识点：`for`、`while`先判断后执行；`do...while`后判断。  
-4.ABCE。知识点：关系运算符包括`>、==、!=、<=`；`&&`是逻辑运算符。  
-5.ABC。知识点：`break`可用于`switch`和带标签跳出多层；`continue`只用于循环且不终止整个循环。  
-6.ABCE。知识点：数组声明语法；`int a[5];`错误。  
-7.ABC。知识点：面向对象三大特征：封装、继承、多态。  
-8.ABD。知识点：封装隐藏细节、`private+get/set`、提高安全性；不是任意修改。  
-9.ABDE。知识点：构造方法同名、无返回值、创建对象时调用、可重载；不能被`static`修饰。  
-10.ACD。知识点：静态成员随类加载、被所有对象共享、静态方法不能用`this`；静态方法不能直接访问非静态成员。  
-11.ABDE。知识点：类单继承、可重写、提高复用、继承`Object`；不能直接访问父类`private`。  
-12.ABD。知识点：抽象类不能实例化；含抽象方法必须抽象；抽象类不一定有抽象方法；子类需实现抽象方法或也为抽象类。  
-13.ABC。知识点：接口变量默认`public static final`；接口多继承；类多实现；接口不能实例化。  
-14.ABD。知识点：多态表现为父类引用指向子类对象、重写、上转型；重载属于编译时静态绑定，不选。  
-15.ABDE。知识点：异常体系、`finally`释放资源、`throw/throws`区别；运行时异常不强制捕获。  
-16.ABCD。知识点：访问权限`private`、默认、`protected`、`public`的可见范围。  
-17.ABC。知识点：`this`当前对象、`this()`本类构造、`super()`父类构造；`super`不能用于静态方法。  
-18.ABCD。知识点：成员内部类访问外部私有、静态内部类限制、局部内部类、匿名内部类。  
-19.ABCD。知识点：异常跳转、多个`catch`、`finally`先于`return`、`catch`子类在前。  
-20.ABC。知识点：编译看左边、运行看右边、父类引用不能调子类特有方法；静态方法不支持运行时多态。
+| 题号 | 答案 | 解析 |
+|---|---|---|
+| 1 | **ACD** | 基本数据类型包括`int、boolean、char`；`String、Integer`是引用类型 |
+| 2 | **ABCE** | `switch`支持`byte、char、String、enum`等，不支持`double` |
+| 3 | **AB** | `for`、`while`先判断后执行；`do...while`后判断 |
+| 4 | **ABCE** | 关系运算符包括`>、==、!=、<=`；`&&`是逻辑运算符 |
+| 5 | **ABC** | `break`可用于`switch`和带标签跳出多层；`continue`只用于循环且不终止整个循环 |
+| 6 | **ABCE** | 数组声明语法；`int a[5];`错误 |
+| 7 | **ABC** | 面向对象三大特征：封装、继承、多态 |
+| 8 | **ABD** | 封装隐藏细节、`private+get/set`、提高安全性；不是任意修改 |
+| 9 | **ABDE** | 构造方法同名、无返回值、创建对象时调用、可重载；不能被`static`修饰 |
+| 10 | **ACD** | 静态成员随类加载、被所有对象共享、静态方法不能用`this`；静态方法不能直接访问非静态成员 |
+| 11 | **ABDE** | 类单继承、可重写、提高复用、继承`Object`；不能直接访问父类`private` |
+| 12 | **ABD** | 抽象类不能实例化；含抽象方法必须抽象；抽象类不一定有抽象方法；子类需实现抽象方法或也为抽象类 |
+| 13 | **ABC** | 接口变量默认`public static final`；接口多继承；类多实现；接口不能实例化 |
+| 14 | **ABD** | 多态表现为父类引用指向子类对象、重写、上转型；重载属于编译时静态绑定，不选 |
+| 15 | **ABDE** | 异常体系、`finally`释放资源、`throw/throws`区别；运行时异常不强制捕获 |
+| 16 | **ABCD** | 访问权限`private`、默认、`protected`、`public`的可见范围 |
+| 17 | **ABC** | `this`当前对象、`this()`本类构造、`super()`父类构造；`super`不能用于静态方法 |
+| 18 | **ABCD** | 成员内部类访问外部私有、静态内部类限制、局部内部类、匿名内部类 |
+| 19 | **ABCD** | 异常跳转、多个`catch`、`finally`先于`return`、`catch`子类在前 |
+| 20 | **ABC** | 编译看左边、运行看右边、父类引用不能调子类特有方法；静态方法不支持运行时多态 |
 
-## 三、判断题答案
+### 三、判断题答案
 
-1.√。知识点：Java支持面向对象。  
-2.×。知识点：Java由JVM解释执行，不是操作系统直接解释。  
-3.×。知识点：字节码跨平台，JVM依赖平台。  
-4.√。知识点：`javac`编译源文件。  
-5.√。知识点：`boolean`只有两个值。  
-6.×。知识点：`double`不能自动转为`int`。  
-7.√。知识点：`byte`范围-128～127。  
-8.√。知识点：Java使用Unicode，`char`可存中文。  
-9.×。知识点：`switch`不支持`double`。  
-10.√。知识点：`do...while`至少执行一次。  
-11.√。知识点：数组长度固定。  
-12.×。知识点：最大下标为`length-1`。  
-13.×。知识点：`void`方法可写`return;`。  
-14.√。知识点：重载同名不同参数列表。  
-15.√。知识点：类与对象关系。  
-16.×。知识点：封装不是所有成员都`private`。  
-17.×。知识点：构造方法不能被继承。  
-18.×。知识点：定义有参构造后不再自动提供无参构造。  
-19.×。知识点：静态方法不能直接访问非静态成员。  
-20.×。知识点：`static`不能修饰局部变量。  
-21.×。知识点：类单继承，接口可多继承。  
-22.√。知识点：重写访问权限不能缩小。  
-23.×。知识点：抽象类不能实例化。  
-24.√。知识点：接口可继承多个接口。  
-25.√。知识点：类可实现多个接口。  
-26.√。知识点：多态编译时看引用类型。  
-27.×。知识点：`Object.equals()`默认比较地址。  
-28.×。知识点：`finally`无论是否异常通常都执行。  
-29.√。知识点：运行时异常不强制捕获。  
-30.×。知识点：`throw`抛对象，`throws`声明异常。
+| 题号 | 答案 | 解析 |
+|---|---|---|
+| 1 | **√** | Java支持面向对象 |
+| 2 | **×** | Java由JVM解释执行，不是操作系统直接解释 |
+| 3 | **×** | 字节码跨平台，JVM依赖平台 |
+| 4 | **√** | `javac`编译源文件 |
+| 5 | **√** | `boolean`只有两个值 |
+| 6 | **×** | `double`不能自动转为`int` |
+| 7 | **√** | `byte`范围-128～127 |
+| 8 | **√** | Java使用Unicode，`char`可存中文 |
+| 9 | **×** | `switch`不支持`double` |
+| 10 | **√** | `do...while`至少执行一次 |
+| 11 | **√** | 数组长度固定 |
+| 12 | **×** | 最大下标为`length-1` |
+| 13 | **×** | `void`方法可写`return;` |
+| 14 | **√** | 重载同名不同参数列表 |
+| 15 | **√** | 类与对象关系 |
+| 16 | **×** | 封装不是所有成员都`private` |
+| 17 | **×** | 构造方法不能被继承 |
+| 18 | **×** | 定义有参构造后不再自动提供无参构造 |
+| 19 | **×** | 静态方法不能直接访问非静态成员 |
+| 20 | **×** | `static`不能修饰局部变量 |
+| 21 | **×** | 类单继承，接口可多继承 |
+| 22 | **√** | 重写访问权限不能缩小 |
+| 23 | **×** | 抽象类不能实例化 |
+| 24 | **√** | 接口可继承多个接口 |
+| 25 | **√** | 类可实现多个接口 |
+| 26 | **√** | 多态编译时看引用类型 |
+| 27 | **×** | `Object.equals()`默认比较地址 |
+| 28 | **×** | `finally`无论是否异常通常都执行 |
+| 29 | **√** | 运行时异常不强制捕获 |
+| 30 | **×** | `throw`抛对象，`throws`声明异常 |
 
-## 四、填空题答案
+### 四、填空题答案
 
-1.`javac`；`java`。知识点：编译与运行命令。  
-2.`main`。知识点：程序入口。  
-3.`.class`。知识点：字节码文件。  
-4.1；2；4；8。知识点：整数类型字节数。  
-5.小；大。知识点：自动类型转换方向。  
-6.`3`；`3.333...`。知识点：整数除法与浮点除法。  
-7.`false`；`true`。知识点：逻辑与/或。  
-8.`String`。知识点：`switch`支持字符串。  
-9.整个循环（或`switch`）；本次循环剩余部分。知识点：`break`与`continue`。  
-10.`length`。知识点：数组长度属性。  
-11.3；4。知识点：二维数组长度。  
-12.方法名；参数列表。知识点：方法重载。  
-13.封装、继承、多态。知识点：面向对象三大特征。  
-14.`static`。知识点：静态成员属于类。  
-15.类名；返回值类型。知识点：构造方法特征。  
-16.`super`。知识点：调用父类构造/成员。  
-17.`abstract`；`abstract`。知识点：抽象类与抽象方法。  
-18.`interface`；`implements`。知识点：接口定义与实现。  
-19.`public static final`。知识点：接口常量默认修饰符。  
-20.单；多（多重）。知识点：类单继承、接口多继承。  
-21.上转型（向上转型）。知识点：多态前提。  
-22.`Throwable`；`Error`；`Exception`。知识点：异常体系。  
-23.`try`；`catch`；`finally`。知识点：异常处理结构。  
-24.`throws`；`throw`。知识点：异常声明与抛出。  
-25.`Exception`（或`RuntimeException`）。知识点：自定义异常。
+| 题号 | 答案 | 解析 |
+|---|---|---|
+| 1 | `javac`；`java` | 编译与运行命令 |
+| 2 | `main` | 程序入口 |
+| 3 | `.class` | 字节码文件 |
+| 4 | 1；2；4；8 | 整数类型字节数 |
+| 5 | 小；大 | 自动类型转换方向 |
+| 6 | `3`；`3.333...` | 整数除法与浮点除法 |
+| 7 | `false`；`true` | 逻辑与/或 |
+| 8 | `String` | `switch`支持字符串 |
+| 9 | 整个循环（或`switch`）；本次循环剩余部分 | `break`与`continue` |
+| 10 | `length` | 数组长度属性 |
+| 11 | 3；4 | 二维数组长度 |
+| 12 | 方法名；参数列表 | 方法重载 |
+| 13 | 封装、继承、多态 | 面向对象三大特征 |
+| 14 | `static` | 静态成员属于类 |
+| 15 | 类名；返回值类型 | 构造方法特征 |
+| 16 | `super` | 调用父类构造/成员 |
+| 17 | `abstract`；`abstract` | 抽象类与抽象方法 |
+| 18 | `interface`；`implements` | 接口定义与实现 |
+| 19 | `public static final` | 接口常量默认修饰符 |
+| 20 | 单；多（多重） | 类单继承、接口多继承 |
+| 21 | 上转型（向上转型） | 多态前提 |
+| 22 | `Throwable`；`Error`；`Exception` | 异常体系 |
+| 23 | `try`；`catch`；`finally` | 异常处理结构 |
+| 24 | `throws`；`throw` | 异常声明与抛出 |
+| 25 | `Exception`（或`RuntimeException`） | 自定义异常 |
 
-## 五、程序阅读题答案
+### 五、程序阅读题答案
 
-1.12。知识点：`a++`先用后加，`++a`先加后用：5+7=12。  
-2.`0 2`。知识点：`continue`跳过`i==1`。  
-3.15。知识点：累加1～5。  
-4.7。知识点：`switch`的`case`穿透：2→4→7后`break`。  
-5.`Java`。知识点：`String`不可变，`replace`返回新字符串但未接收。  
-6.`A B`。知识点：子类构造前先调用父类构造。  
-7.`Dog`。知识点：多态，运行时调用子类重写方法。  
-8.先输出`越界`，再输出`结束`。知识点：`catch`捕获数组越界，`finally`必执行。  
-9.`finally`。知识点：`return`前执行`finally`。  
-10.`true false`。知识点：`Integer`缓存-128～127；超出范围`==`比较地址。  
-11.10。知识点：基本类型值传递，方法内修改不影响原变量。  
-12.`A静态 A构造 A构造`。知识点：静态代码块只执行一次，构造方法每次创建对象都执行。  
-13.`true`。知识点：字符串常量池复用同一对象。  
-14.`3.14`。知识点：抽象类引用指向子类对象，多态调用`area()`。  
-15.抛出`RuntimeException`，程序终止，异常信息中包含`demo`。知识点：未捕获运行时异常导致程序终止。
+| 题号 | 输出 | 解析 |
+|---|---|---|
+| 1 | `12` | `a++`先用后加，`++a`先加后用：5+7=12 |
+| 2 | `0 2` | `continue`跳过`i==1` |
+| 3 | `15` | 累加1～5 |
+| 4 | `7` | `switch`的`case`穿透：2→4→7后`break` |
+| 5 | `Java` | `String`不可变，`replace`返回新字符串但未接收 |
+| 6 | `A B` | 子类构造前先调用父类构造 |
+| 7 | `Dog` | 多态，运行时调用子类重写方法 |
+| 8 | 先输出`越界`，再输出`结束` | `catch`捕获数组越界，`finally`必执行 |
+| 9 | `finally` | `return`前执行`finally` |
+| 10 | `true false` | `Integer`缓存-128～127；超出范围`==`比较地址 |
+| 11 | `10` | 基本类型值传递，方法内修改不影响原变量 |
+| 12 | `A静态 A构造 A构造` | 静态代码块只执行一次，构造方法每次创建对象都执行 |
+| 13 | `true` | 字符串常量池复用同一对象 |
+| 14 | `3.14` | 抽象类引用指向子类对象，多态调用`area()` |
+| 15 | 抛出`RuntimeException`，程序终止 | 未捕获运行时异常导致程序终止 |
 
-## 六、编程题参考答案要点
+### 六、编程题参考答案要点
 
-1.参考要点：`for(int i=1;i<=100;i++){ if(i%3==0 && i%5!=0){ System.out.print(i+" "); count++; } }`。知识点：循环、选择、取模、计数。  
-2.参考要点：`int max=arr[0]; for(int x:arr) if(x>max) max=x; return max;`。知识点：数组遍历、方法返回值。  
-3.参考要点：`private`属性、无参/有参构造、`get/set`、`toString()`。知识点：类与对象、封装、构造方法。  
-4.参考要点：无参构造调用`this(1,1);`，双参构造赋值，`area()`返回`width*height`，`perimeter()`返回`2*(width+height)`。知识点：构造方法重载、`this()`、封装。  
-5.参考要点：`class Counter{ static int count; Counter(){ count++; } }`，创建3个对象后输出`Counter.count`为3。知识点：`static`成员被所有对象共享。  
-6.参考要点：`Animal a1=new Dog(); a1.shout(); Animal a2=new Cat(); a2.shout();`。知识点：继承、方法重写、多态。  
-7.参考要点：`abstract class Shape{ abstract double area(); }`，`Circle`和`Rectangle`分别实现`area()`。知识点：抽象类、抽象方法、继承。  
-8.参考要点：`interface Flyable{ void fly(); }`，`Bird`和`Airplane`实现`fly()`。知识点：接口定义与实现。  
-9.参考要点：`Flyable[] fs={new Bird(),new Airplane()}; for(Flyable f:fs) f.fly();`。知识点：接口数组、多态、增强`for`。  
-10.参考要点：`Outer o=new Outer(); Outer.Inner in=o.new Inner(); in.show();`，内部类可访问外部类`private num`。知识点：成员内部类、外部类对象创建内部类对象。  
-11.参考要点：`try{ int r=a/b; }catch(ArithmeticException e){ System.out.println("除数不能为0"); }finally{ System.out.println("计算结束"); }`。知识点：`try-catch-finally`、`ArithmeticException`。  
-12.参考要点：`class InsufficientFundsException extends Exception{...}`；`withdraw`中`if(amount>balance) throw new InsufficientFundsException("余额不足");`。知识点：自定义异常、`throw`、异常声明。  
-13.参考要点：`interface Playable{ void play(); }`；`abstract class Instrument implements Playable{ String name; ...}`；`Band.perform()`中若`members==null||members.length==0`则`throw new IllegalStateException()`，否则遍历`play()`。知识点：接口、抽象类、多态、异常。  
-14.参考要点：`private static int totalCount;`构造方法中`totalCount++;`，`static int getTotalCount(){ return totalCount; }`。知识点：`static`变量、构造方法、封装。  
-15.参考要点：复制数组后使用`Arrays.sort`配合`Comparator`或冒泡按成绩降序；`average`累加`getScore()`除以`length`。知识点：对象数组、方法、排序、封装、平均分计算。
+| 题号 | 参考要点 | 知识点 |
+|---|---|---|
+| 1 | `for(int i=1;i<=100;i++){ if(i%3==0 && i%5!=0){ System.out.print(i+" "); count++; } }` | 循环、选择、取模、计数 |
+| 2 | `int max=arr[0]; for(int x:arr) if(x>max) max=x; return max;` | 数组遍历、方法返回值 |
+| 3 | `private`属性、无参/有参构造、`get/set`、`toString()` | 类与对象、封装、构造方法 |
+| 4 | 无参构造调用`this(1,1);`，双参构造赋值，`area()`返回`width*height`，`perimeter()`返回`2*(width+height)` | 构造方法重载、`this()`、封装 |
+| 5 | `class Counter{ static int count; Counter(){ count++; } }`，创建3个对象后输出`Counter.count`为3 | `static`成员被所有对象共享 |
+| 6 | `Animal a1=new Dog(); a1.shout(); Animal a2=new Cat(); a2.shout();` | 继承、方法重写、多态 |
+| 7 | `abstract class Shape{ abstract double area(); }`，`Circle`和`Rectangle`分别实现`area()` | 抽象类、抽象方法、继承 |
+| 8 | `interface Flyable{ void fly(); }`，`Bird`和`Airplane`实现`fly()` | 接口定义与实现 |
+| 9 | `Flyable[] fs={new Bird(),new Airplane()}; for(Flyable f:fs) f.fly();` | 接口数组、多态、增强`for` |
+| 10 | `Outer o=new Outer(); Outer.Inner in=o.new Inner(); in.show();`，内部类可访问外部类`private num` | 成员内部类、外部类对象创建内部类对象 |
+| 11 | `try{ int r=a/b; }catch(ArithmeticException e){ System.out.println("除数不能为0"); }finally{ System.out.println("计算结束"); }` | `try-catch-finally`、`ArithmeticException` |
+| 12 | `class InsufficientFundsException extends Exception{...}`；`withdraw`中`if(amount>balance) throw new InsufficientFundsException("余额不足");` | 自定义异常、`throw`、异常声明 |
+| 13 | `interface Playable{ void play(); }`；`abstract class Instrument implements Playable{ String name; ...}`；`Band.perform()`中若`members==null||members.length==0`则`throw new IllegalStateException()`，否则遍历`play()` | 接口、抽象类、多态、异常 |
+| 14 | `private static int totalCount;`构造方法中`totalCount++;`，`static int getTotalCount(){ return totalCount; }` | `static`变量、构造方法、封装 |
+| 15 | 复制数组后使用`Arrays.sort`配合`Comparator`或冒泡按成绩降序；`average`累加`getScore()`除以`length` | 对象数组、方法、排序、封装、平均分计算 |
 
 > 试题由AI结合书本范围生成，仅供模拟试题使用
