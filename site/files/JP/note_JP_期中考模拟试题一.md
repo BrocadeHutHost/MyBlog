@@ -5,12 +5,12 @@ category: 笔记
 tags: [JAVA, 笔记]
 excerpt: JAVA的学习笔记
 draft: false        # 还没写完就打开，列表里会显示「待补充」
-order: 1
+order: 5
 UseByAI:true
 ---
 
 ## 试题部分
-
+- **该试题为高难度版本可能会比较打击信心**
 ### 一、单项选择题（40题）
 
 #### Java概述与环境搭建（1—6）
