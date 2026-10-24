@@ -5,7 +5,7 @@ category: 笔记
 tags: [JAVA, 笔记]
 excerpt: JAVA的学习笔记
 draft: false        # 还没写完就打开，列表里会显示「待补充」
-order: 5
+order: 1
 UseByAI:true
 ---
 
