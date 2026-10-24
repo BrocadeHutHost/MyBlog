@@ -10,7 +10,7 @@ UseByAI:true
 ---
 
 ## 试题部分
-<span style="font-weight: bold; font-size: 20px; color: #ff9354 background: #eeb75191">!该试题为高难度版本可能会比较打击信心,谨慎食用!</span>
+<span style="font-weight: bold; font-size: 20px; color: #ff9354; background: #eeb75191;">!该试题为高难度版本可能会比较打击信心,谨慎食用!</span>
 
 ### 一、单项选择题（40题）
 
