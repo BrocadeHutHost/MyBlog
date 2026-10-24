@@ -10,7 +10,7 @@ UseByAI:true
 ---
 
 ## 试题部分
-- **该试题为高难度版本可能会比较打击信心**
+<span style="font-weight: bold; font-size: 32px;">该试题为高难度版本可能会比较打击信心,谨慎食用</span>
 ### 一、单项选择题（40题）
 
 #### Java概述与环境搭建（1—6）
